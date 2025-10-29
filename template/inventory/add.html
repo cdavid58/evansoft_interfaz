@@ -1,0 +1,256 @@
+{% extends '../base.html' %}
+{% block content %}
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>Let's create a product</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<a class="btn btn-primary create_lient" href="{% url 'List_Inventory' %}" role="button">Product List</a>
+	</div>
+</div>
+
+<form class="form_data">
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Código</label>
+				<input type="text" name="code" autofocus class="form-control">
+			</div>
+		</div>
+		<div class="col-md-4 col-sm-12">
+			<div class="form-group">
+				<label>Producto</label>
+				<input type="text"placeholder="Nombre del producto" name="name"  class="form-control">
+			</div>
+		</div>
+		<div class="col-md-1 col-sm-12">
+			<div class="form-group">
+				<label>IVA</label>
+				<select class="custom-select col-12"  name="tax">
+					<option selected="" disabled>Elije</option>
+					<option value="0">0</option>
+					<option value="5">5</option>
+					<option value="19">19</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Costo</label>
+				<input type="number"placeholder="Costo del producto" name="cost" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Impoconsumo</label>
+				<input type="number" placeholder="Impuesto al Consumo" name="ico"  class="form-control">
+			</div>
+		</div>
+		<div class="col-md-1 col-sm-12">
+			<div class="form-group">
+				<label>Descuento</label>
+				<input type="number" placeholder="50%" name="discount" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Static Box</label>
+				<input type="number" placeholder="Cant Statica Caja" name="bale_static" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Box</label>
+				<input type="number" placeholder="Cant Caja" name="bale" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Static Bale</label>
+				<input type="number" placeholder="Cant Statica Paca" name="display_static" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Bale</label>
+				<input type="number" placeholder="Cant Paca" name="display" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Static Unit</label>
+				<input type="number" placeholder="Cant Statica Unidad" name="unit_static" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Unit</label>
+				<input type="number" placeholder="Cant Unidad" name="unit" class="form-control">
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 1 (Und)</label>
+				<input type="number" placeholder="Precio Unidad" name="price_1" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 2 (Paca)</label>
+				<input type="number" placeholder="Precio Paca" name="price_2" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 3 (Caja)</label>
+				<input type="number" placeholder="Precio Caja" name="price_3" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 4 (Und -Dcto)</label>
+				<input type="number" placeholder="Unidad - Descuento" name="price_4" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 5 (Paca -Dcto)</label>
+				<input type="number" placeholder="Paca - Descuento" name="price_5" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 6 (Caja -Dcto)</label>
+				<input type="number" placeholder="Caja - Descuento" name="price_6" class="form-control">
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-3 col-12">
+			<div class="form-group">
+				<label>Elije la sucursal</label>
+				<select class="custom-select2 branchs" multiple="multiple" style="width: 100%;">
+					{% for i in list_branch %}
+						<option value="{{i.id}}">{{i.business_name}}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="col-md-3 col-12">
+			<div class="form-group">
+				<label>Categorias</label>
+				<select class="custom-select2 col-12" name="category_id" style="width: 100%;">
+					<option selected="" disabled>Elije...</option>
+					{% for i in categories %}
+						<option value="{{i.id}}">{{i.name}}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="col-md-4 col-12">
+			<div class="form-group">
+				<label>Unidad de Medida</label>
+				<select class="custom-select2 col-12" name="unit_measures" style="width: 100%;">
+					<option selected="" disabled>Elije...</option>
+					{% for i in unit_measures %}
+						<option value="{{i.id}}">{{i.name}}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="col-md-2 col-12">
+			<div class="form-group">
+				<label>Marca</label>
+				<input type="text" placeholder="CALDAS" name="brand" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<a class="btn btn-primary save_product" href="javascript:void(0);" role="button">Crear Producto</a>
+		</div>
+	</div>
+</form>
+							
+
+{% endblock %}
+{% block script %}
+
+	<script>
+		$(document).ready(function(){
+		    $(".save_product").click(function(){
+		        let hasEmptyField = false;
+		        let selectedBranches = $(".branchs").val() || []; // Si es null, convertirlo en array vacío.
+		        console.log("📌 Sucursales seleccionadas:", selectedBranches);
+
+		        let form = $(".form_data")[0];
+		        let formData = $(".form_data").serializeArray();
+		        let baseData = {};
+
+		        $.each(formData, function(index, field){
+		            if (!field.value.trim()) {
+		                hasEmptyField = true;
+		                console.warn(`⚠ El campo '${field.name}' está vacío.`);
+		            }
+		            baseData[field.name] = field.value.trim();
+		        });
+
+		        if (hasEmptyField) {
+		            Swal.fire({
+		                icon: "error",
+		                title: "Campos vacíos",
+		                text: "Todos los campos son obligatorios. Por favor, complétalos antes de continuar.",
+		                confirmButtonText: "OK"
+		            });
+		            return;
+		        }
+
+		        let productsArray = [];
+		        let employee = {{request.session.pk_employee|safe}}
+		        selectedBranches.forEach(branchId => {
+		            let productData = { ...baseData, branch_id: branchId, employee_id: employee };
+		            productsArray.push(productData);
+		        });
+
+		        console.log("📌 Datos finales:", productsArray);
+
+		        $.ajax({
+		            url: "{% url 'Save_Product' %}",
+		            type: "POST",
+		            contentType: "application/json",
+		            data: JSON.stringify(productsArray),
+		            headers: {
+		                "X-CSRFToken": "{{ csrf_token }}"
+		            },
+		            success: function(response){
+		                console.log("✅ Respuesta del servidor:", response);
+		                console.log(response.result);
+		                
+		                if(response.result){
+		                    Notification("success", "✅Producto Creado con éxito.", response.message, "OK");
+
+		                    // 🔹 Resetear formulario y limpiar selects
+		                    form.reset();
+		                    $(".branchs").val(null).trigger("change.select2"); // Forzar limpieza en Select2
+		                    $("select").val("").trigger("change.select2"); // Limpiar todos los selects de Select2
+		                } else {
+		                    Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+		                }
+		            },
+		            error: function(xhr, status, error){
+		                console.error("🚨 Error en la petición:", status, error);
+		                Notification("error", "🚨 Error en la petición", status, "OK");
+		            }
+		        });
+		    });
+		});
+	</script>
+{% endblock %}

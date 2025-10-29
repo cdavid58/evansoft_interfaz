@@ -1,0 +1,308 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	.dataTables_paginate {
+	    overflow-x: auto;
+	    white-space: nowrap;
+	    display: flex;
+	    justify-content: center;
+	}
+
+	.dataTables_paginate .pagination {
+	    flex-wrap: nowrap;
+	}
+
+	@media screen and (max-width: 400px) {
+	    .dataTables_paginate {
+	        font-size: 12px;
+	    }
+	}
+</style>
+<div class="row mb-2">
+	<div class="col-md-2 col-12 mb-2">
+		<div class="title">
+			<h4>Cuentas por cobrar</h4>
+		</div>
+	</div>
+	<div class="col-md-10 col-sm-12 text-right">
+		<select class="custom-select col-md-3 col-12 mb-2 branch">
+			<option selected="" value="0">Elija Sucursal</option>
+			{% for i in list_branch %}
+				<option value="{{i.id}}">{{i.business_name}}</option>
+			{% endfor %}
+		</select>
+	</div>
+</div>
+
+<div class="card-box mb-30 p-2">
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="data-table table table-stripe hover nowrap" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th class="table-plus datatable-nosort">Factura</th>
+		                <th>Fecha Limite</th>
+		                <th>Cliente</th>
+		                <th>Total</th>
+		                <th>Abonado</th>
+		                <th>Val. Pendiente</th>
+		                <th>Cancelado</th>
+		                <th>Acciones</th>
+		            </tr>
+		        </thead>
+		        <tbody></tbody>
+		    </table>
+		</div>
+	</div>
+</div>
+
+<div class="card border-primary shadow-sm mt-3">
+  <div class="card-body">
+    <h5 class="card-title text-center font-weight-bold text-primary">Resumen de Cartera</h5>
+    <hr>
+    <div class="row mb-2">
+      <div class="col-sm-10 col-8 text-right font-weight-bold">Total Facturado:</div>
+      <div class="col-sm-2 col-4 text-right text-success">$<span id="total_facturado">0.00</span></div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-sm-10 col-8 text-right font-weight-bold">Total Abonado:</div>
+      <div class="col-sm-2 col-4 text-right text-info">$<span id="total_abonado">0.00</span></div>
+    </div>
+    <div class="row">
+      <div class="col-sm-10 col-8 text-right font-weight-bold">Total Pendiente:</div>
+      <div class="col-sm-2 col-4 text-right text-danger">$<span id="total_pendiente">0.00</span></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal para cargar inventario -->
+<div class="modal fade" id="modalUploadPass" tabindex="-1" role="dialog" aria-labelledby="uploadPaymentLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadPaymentLabel">Registrar Pago</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="paymentAmount">Monto del pago:</label>
+          <input type="text" class="form-control" id="paymentAmount" name="paymentAmount" required>
+        </div>
+        <div class="form-group">
+          <label for="paymentNote">Nota (opcional):</label>
+          <textarea class="form-control" id="paymentNote" name="paymentNote" rows="3" placeholder="Agrega una nota si es necesario..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success save_payment">Registrar Pago</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+	$(document).ready(function () {
+		let branch_id = null
+		let id_pass = null
+		$(".branch").change(function () {
+		    branch_id = $(this).val().trim();
+
+		    if (branch_id == 0) {
+		        Swal.fire({
+		            icon: "warning",
+		            title: "Sucursal no seleccionada",
+		            text: "Por favor, seleccione una sucursal para ver el inventario.",
+		            confirmButtonText: "Entendido"
+		        });
+
+		        if ($.fn.DataTable.isDataTable('.table')) {
+		            let table = $('.table').DataTable();
+		            table.clear().draw();
+		        }
+		        return;
+		    }
+
+		    if ($.fn.DataTable.isDataTable('.table')) {
+		        $('.table').DataTable().destroy();
+		    }
+
+		    $('.table').DataTable({
+		        responsive: true,
+		        serverSide: true,
+		        processing: true,
+		        searching: true,
+		        pagingType: "simple_numbers",
+		        ajax: {
+		            url: "{% url 'Get_All_accounts_Receivable' %}",
+		            type: "GET",
+		            headers: { "X-Requested-With": "XMLHttpRequest" },
+		            data: function (d) {
+		                d.pk_branch = branch_id;
+		                d.search = d.search || {};
+		                d.search.value = d.search.value || '';
+		            },
+		            dataSrc: function (json) {
+		                console.log("🔹 Respuesta del servidor:", json);
+		                // Actualizar los totales
+								    $('#total_facturado').text(parseFloat(json.total || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 }));
+								    $('#total_abonado').text(parseFloat(json.amount || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 }));
+								    $('#total_pendiente').text(parseFloat(json.outstanding_amount || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 }));
+		                return json.data || [];
+		            }
+		        },
+		        columns: [
+		            { data: "number", title: "Factura", className: "table-plus" },
+		            { data: "due_date", title: "Fecha Limite" },
+		            { data: "customer", title: "Cliente" },
+		            { data: "total", title: "Total" },
+		            { data: "amount", title: "Abonado" },
+		            { data: "outstanding_amount", title: "Pendiente" },
+		            { data: "paid", title: "Cancelado" },
+		            {
+		                data: null,
+		                title: "Acciones",
+		                render: function (data, type, row) {
+		                    return `
+		                        <div class="dropdown">
+		                            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="javascript:void(0);" role="button" data-toggle="dropdown">
+		                                <i class="dw dw-more"></i>
+		                            </a>
+		                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+		                                <a class="dropdown-item pass row-number ${row.number}" data-pk="${row.pk}" id="${row.pk}" href="javascript:void(0);"><i class="dw dw-edit2"></i> Abonar</a>
+		                            </div>
+		                        </div>`;
+		                }
+		            }
+		        ],
+		        lengthMenu: [10, 20, 30, 40, 50],
+		        language: {
+		            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+		        },
+		        drawCallback: function () {
+		            console.log('🔄 Tabla actualizada con nueva data');
+		        }
+		    });
+		});
+
+
+		$(document).on('click', '.pass', function () {
+			id_pass = this.id
+			// let pkValue = $(this).attr('data-pk');
+			// console.log('data-pk:', pkValue);
+		  $("#modalUploadPass").modal('show');
+		});
+
+		$('#modalUploadPass').on('shown.bs.modal', function () {
+		  $('#paymentAmount').trigger('focus');
+		});
+
+		function formatNumber(input) {
+	    let val = input.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+
+	    if (!val) {
+        input.value = '';
+        return;
+	    }
+
+	    const formatted = Number(val).toLocaleString('de-DE');
+	    input.value = formatted;
+		}
+
+		$(document).on('input', '#paymentAmount', function () {
+		  formatNumber(this);
+		});
+
+
+
+		$('.save_payment').click(function () {
+		    const rawValue = $('#paymentAmount').val().replace(/\./g, '');
+		    const paymentNote = $('#paymentNote').val();
+		    const paymentValue = parseFloat(rawValue);
+
+		    // Validación del monto
+		    if (isNaN(paymentValue) || paymentValue <= 0) {
+		        Swal.fire({
+		            icon: 'warning',
+		            title: 'Monto inválido',
+		            text: 'Por favor, ingresa un monto válido para el pago.',
+		            confirmButtonText: 'OK'
+		        });
+		        return;
+		    }
+
+		    // Datos a enviar
+		    const data = {
+		        payment_pass: paymentValue,
+		        branch_id: branch_id,
+		        note: (paymentNote === '') ? "Sin observaciones" : paymentNote,
+		        accounts_receivable: id_pass
+		    };
+
+		    console.log('Enviando:', data);
+
+		    $.ajax({
+		        url: '{% url "Create_Pass_Invoice" %}',
+		        type: 'POST',
+		        data: JSON.stringify(data),
+		        contentType: 'application/json',
+		        headers: {
+		          "X-CSRFToken": "{{ csrf_token }}"
+		        },
+		        success: function (response) {
+		            console.log('Respuesta del servidor:', response);
+		            if (response.result) {
+		                // Notificación de éxito
+		                Swal.fire({
+		                    icon: 'success',
+		                    title: 'Abono aprobado',
+		                    text: 'El abono fue registrado correctamente.',
+		                    confirmButtonText: 'OK'
+		                }).then((result) => {
+		                    if (result.isConfirmed) {
+		                        // Recargar los datos de la tabla
+		                        var table = $('.table').DataTable();
+		                        table.ajax.reload(null, false); // Recarga sin reiniciar la paginación
+
+		                        // Cerrar el modal
+		                        $('#modalUploadPass').modal('hide');
+		                    }
+		                });
+		            } else {
+		                // Notificación de error
+		                Swal.fire({
+		                    icon: 'error',
+		                    title: 'Error al registrar el pago',
+		                    text: response.message || 'Ocurrió un error desconocido.',
+		                    confirmButtonText: 'OK'
+		                });
+		            }
+		        },
+		        error: function (xhr, status, error) {
+		            console.error('Error en la solicitud:', xhr.responseText);
+		            Swal.fire({
+		                icon: 'error',
+		                title: 'Error al realizar el pago',
+		                text: 'Hubo un error al procesar tu solicitud. Por favor intenta nuevamente.',
+		                confirmButtonText: 'OK'
+		            });
+		        }
+		    });
+		});
+
+
+
+
+
+		
+	});
+</script>
+{% endblock %}

@@ -1,0 +1,228 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	/* Resalta el label si el campo está vacío */
+	.form-group label {
+	    font-weight: 600;
+	    transition: color 0.3s ease-in-out;
+	}
+
+	.form-group input:focus {
+	    border-color: #007bff !important;
+	    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+	}
+
+	/* Campo obligatorio vacío = borde rojo */
+	.form-group .required:invalid {
+	    border-color: red !important;
+	}
+
+	/* Cambia el color del label si el campo está vacío */
+	.form-group .required:invalid + label {
+	    color: red;
+	}
+
+	.error-message {
+	    display: none;
+	    font-size: 0.85rem;
+	    margin-top: 5px;
+	}
+
+	.is-invalid {
+	    border-color: red !important;
+	}
+
+	.is-invalid + .error-message {
+	    display: block;
+	}
+
+
+</style>
+
+
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>🚀 Vamos a crear un proveedor!</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<a class="btn btn-primary create_lient" href="{% url 'List_Supplier' %}" role="button">Lista de proveedores</a>
+	</div>
+</div>
+
+<form class="form_data">
+	<div class="row">
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="code">Documento de Identificación</label>
+	            <input type="number" id="code" name="nit" class="form-control required" autofocus placeholder="Ej: 12345678">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-3 col-sm-12">
+	        <div class="form-group">
+	            <label for="name">Razón Social</label>
+	            <input type="text" id="name" name="name" class="form-control required" placeholder="Ej: Empresa S.A.">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="phone">Teléfono</label>
+	            <input type="tel" id="phone" name="phone" class="form-control required" placeholder="Ej: 3123456789"
+	                pattern="^\d{7,10}$" maxlength="10" minlength="7">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-4 col-sm-12">
+	        <div class="form-group">
+	            <label for="address">Dirección</label>
+	            <input type="text" id="address" name="address" class="form-control required" placeholder="Ej: Calle 123 #45-67">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-4 col-sm-12">
+		    <div class="form-group">
+		        <label for="email">Correo Electrónico</label>
+		        <input type="email" id="email" name="email" class="form-control required" placeholder="Ej: ejemplo@dominio.com">
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+
+	</div>
+
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<a class="btn btn-primary save_supplier" href="javascript:void(0);" role="button">Crear Proveedor</a>
+		</div>
+	</div>
+</form>
+							
+
+{% endblock %}
+{% block script %}
+
+	<script>
+		$(document).ready(function () {
+		    let phoneInput = $("input[name='phone']");
+		    let emailInput = $("input[name='email']");
+
+		    phoneInput.on("input", function () {
+		        let value = $(this).val().replace(/\D/g, "");
+		        $(this).val(value);
+		    });
+
+		    emailInput.on("blur", function () {
+		        let emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+		        let isValid = emailRegex.test($(this).val());
+
+		        $(this).next(".email-error").remove();
+		        if (!isValid) {
+		            $(this).addClass("is-invalid");
+		            $(this).after('<div class="text-danger email-error" style="font-size: 12px;">⚠️ Ingrese un correo electrónico válido</div>');
+		        } else {
+		            $(this).removeClass("is-invalid");
+		        }
+		    });
+
+		    phoneInput.on("blur", function () {
+		        let phoneRegex = /^(?:\d{7}|\d{10})$/; // Solo 7 o 10 dígitos permitidos
+		        let isValid = phoneRegex.test($(this).val());
+
+		        $(this).next(".phone-error").remove(); // Elimina mensaje anterior
+		        if (!isValid) {
+		            $(this).addClass("is-invalid");
+		            $(this).after('<div class="text-danger phone-error" style="font-size: 12px;">⚠️ Ingrese un número de 7 o 10 dígitos</div>');
+		        } else {
+		            $(this).removeClass("is-invalid");
+		        }
+		    });
+
+		    // Validación de inputs y selects
+		    $(".required").on("blur change", function () {
+		        let input = $(this);
+		        let errorMessage = input.next(".error-message");
+
+		        if (!input.val().trim()) {
+		            input.addClass("is-invalid");
+		            errorMessage.text("⚠️ Este campo es obligatorio").show();
+		        } else {
+		            input.removeClass("is-invalid");
+		            errorMessage.hide();
+		        }
+		    });
+
+
+		    $(".save_supplier").click(function(){
+		        let hasEmptyField = false;
+		        let selectedBranches = ["{{request.session.company_id}}"];
+		        console.log("📌 Sucursales seleccionadas:", selectedBranches);
+
+		        let form = $(".form_data")[0];
+		        let formData = $(".form_data").serializeArray();
+		        let baseData = {};
+
+		        $.each(formData, function(index, field){
+		            if (!field.value.trim()) {
+		                hasEmptyField = true;
+		                console.warn(`⚠ El campo '${field.name}' está vacío.`);
+		            }
+		            baseData[field.name] = field.value.trim();
+		        });
+
+		        if (hasEmptyField) {
+		            Swal.fire({
+		                icon: "error",
+		                title: "Campos vacíos",
+		                text: "Todos los campos son obligatorios. Por favor, complétalos antes de continuar.",
+		                confirmButtonText: "OK"
+		            });
+		            return;
+		        }
+
+		        let productsArray = [];
+		        selectedBranches.forEach(branchId => {
+		            let productData = { ...baseData, branch_id: branchId };
+		            productsArray.push(productData);
+		        });
+
+		        console.log("📌 Datos finales:", productsArray);
+
+		        $.ajax({
+		            url: "{% url 'Save_Supplier' %}",
+		            type: "POST",
+		            contentType: "application/json",
+		            data: JSON.stringify(productsArray),
+		            headers: {
+		                "X-CSRFToken": "{{ csrf_token }}"
+		            },
+		            success: function(response){
+		                console.log("✅ Respuesta del servidor:", response);
+		                console.log(response.result);
+		                
+		                if(response.result){
+		                    Notification("success", "✅Producto Creado con éxito.", response.message, "OK");
+
+		                    // 🔹 Resetear formulario y limpiar selects
+		                    form.reset();
+		                    $(".branchs").val(null).trigger("change.select2");
+		                    $("select").val("").trigger("change.select2");
+		                } else {
+		                    Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+		                }
+		            },
+		            error: function(xhr, status, error){
+		                console.error("🚨 Error en la petición:", status, error);
+		                Notification("error", "🚨 Error en la petición", status, "OK");
+		            }
+		        });
+		    });
+		});
+	</script>
+{% endblock %}

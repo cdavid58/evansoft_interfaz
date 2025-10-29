@@ -1,0 +1,94 @@
+{% extends '../base.html' %}
+{% load static %}
+{% block content %}
+<style>
+	.subtitle{
+		font-size: 20px;
+	}
+</style>
+
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-6 col-12">
+		<div class="title">
+			<h4 class=" text-danger">Invoice N° <span class="number_invoice"></span></h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-6 col-12 text-right">
+		<div class="row justify-content-end">
+			<div class="col-md-12 col-sm-12 text-danger subtitle">
+				<span class="days_resolution"></span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-3 col-sm-12">
+		<div class="form-group">
+			<label>Empleado</label>
+			<select id="clientSelect" class="custom-select2 form-control" name="state" style="width: 100%; height: 38px;"></select>
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Fecha</label>
+			<input type="date" class="form-control" id="fecha" value="">
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-12">
+		<div class="form-group">
+			<label>Metodos de Pagos</label>
+			<select id="paymentmethod" class="custom-select form-control" name="state" style="width: 100%;">
+				<option value="10">Efectivo</option>
+				<option value="30">Crédito</option>
+				<option value="47">Transferencia Debito</option>
+				<option value="45">Transferencia Crédito</option>
+				<option value="49">Tarjeta Debito</option>
+				<option value="48">Tarjetas Crédito</option>
+			</select>
+		</div>
+	</div>
+	<div class="col-md-1 col-sm-12">
+		<div class="form-group">
+			<label>Stock</label>
+			<input type="text" disabled class="form-control stock">
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	
+</div>
+
+
+
+
+
+{% endblock %}
+{% block script %}
+
+<script>
+	let customer_id = {{request.session.customer_id|safe}}
+	let branch_id = {{request.session.branch_id|safe}}
+	let employee_id = {{request.session.pk_employee|safe}}
+	let type_document = {{request.session.type_document|safe}}
+	let limited_inventory = {{request.session.limited_inventory|safe}}
+	let url_product = '{% url "Get_Product_By_Name" %}'
+	let url_customer = '{% url "Get_Customer_By_Name" %}'
+	let send_dian = "{% url 'Send_Dian' %}"
+	let list_product_invoice = []
+	let list_product_tmp = []
+	let product_id = null
+	let type_price = null
+	let invoice = new Object()
+	let url_all_inventory = "{% url 'Get_All_Inventory' %}"
+	let reserved = "{% url 'Reserved' %}"
+	let return_product = "{% url 'Return_Product' %}"
+	let print_invoice = "{{ request.session.url_app }}/invoice/Print_Invoice/";
+</script>
+<script src="{% static 'invoice/offline.js' %}"></script>
+<script src="{% static 'invoice/save_invoice.js' %}"></script>
+<script src="{% static 'invoice/test.js' %}"></script>
+
+
+{% endblock %}

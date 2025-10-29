@@ -1,0 +1,165 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	.dataTables_paginate {
+	    overflow-x: auto;
+	    white-space: nowrap;
+	    display: flex;
+	    justify-content: center;
+	}
+
+	.dataTables_paginate .pagination {
+	    flex-wrap: nowrap;
+	}
+
+	@media screen and (max-width: 400px) {
+	    .dataTables_paginate {
+	        font-size: 12px;
+	    }
+	}
+</style>
+<div class="row mb-2">
+	<div class="col-md-6 col-12">
+		<div class="title">
+			<h4>Lista de proveedores</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-12 text-right">
+		<a class="btn btn-primary create_customer col-5" href="{% url 'Create_Supplier' %}" role="button">Crear</a>
+	</div>
+</div>
+
+<div class="card-box mb-30 p-2">
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="data-table table table-stripe hover nowrap" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th class="table-plus datatable-nosort">Código</th>
+		                <th>Producto</th>
+		                <th>Caja</th>
+		                <th>Display</th>
+		                <th>Unidades</th>
+		                <th>Acciones</th>
+		            </tr>
+		        </thead>
+		        <tbody></tbody>
+		    </table>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+	$(document).ready(function () {
+	    if ($.fn.DataTable.isDataTable('.table')) {
+	        $('.table').DataTable().destroy();
+	    }
+
+	    $('.table').DataTable({
+	        responsive: true,
+	        serverSide: true,
+	        processing: true,
+	        searching: true,
+	        pagingType: "simple_numbers",
+	        ajax: {
+	            url: "{% url 'Get_List_Supplier' %}",
+	            type: "GET",
+	            headers: { "X-Requested-With": "XMLHttpRequest" },
+	            data: function (d) {
+	                d.search = d.search || {};
+	                d.search.value = d.search.value || '';
+	            },
+	            dataSrc: function (json) {
+	                console.log("🔹 Respuesta del servidor:", json);
+	                return json.data || [];
+	            }
+	        },
+	        columns: [
+	            { data: "nit", title: "nit", className: "table-plus" },
+	            { data: "name", title: "name" },
+	            { data: "phone", title: "phone" },
+	            { data: "address", title: "address" },
+	            { data: "email", title: "email" },
+	            {
+	                data: null,
+	                title: "Acciones",
+	                render: function (data, type, row) {
+	                    return `
+	                        <div class="dropdown">
+	                            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+	                                <i class="dw dw-more"></i>
+	                            </a>
+	                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+	                                <a class="dropdown-item edit" data-pk="${row.nit}" id="${row.nit}" href="javascript:void(0);"><i class="dw dw-edit2"></i> Editar</a>
+	                                <a class="dropdown-item delete" data-pk="${row.id}" id="${row.nit}" href="javascript:void(0);"><i class="dw dw-delete-3"></i> Eliminar</a>
+	                            </div>
+	                        </div>`;
+	                }
+	            }
+	        ],
+	        lengthMenu: [5, 10, 20, 30, 40, 50],
+	        language: {
+	            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+	        },
+	        drawCallback: function () {
+	            console.log('🔄 Tabla actualizada con nueva data');
+	        }
+	    });
+
+		$(document).on("click", ".delete", function () {
+		    let table = $(".table").DataTable();
+		    let rowData = table.row($(this).closest("tr")).data();
+
+		    console.log("📌 Datos de la fila seleccionada:", rowData); // Verificar valores en consola
+
+		    if (!rowData || !rowData.nit) {
+		        console.error("🚨 Error: Código de clietne no encontrado.");
+		        Notification("error", "🚨 Error", "Código de clietne no encontrado.", "OK");
+		        return;
+		    }
+
+		    $.ajax({
+		        url: "{% url 'Delete_Supplier' %}",
+		        type: "POST",
+		        contentType: "application/json",
+		        data: JSON.stringify({
+		            nit: rowData.nit,
+		            company_id: {{request.session.company_id|safe}}
+		        }),
+		        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+		        success: function (response) {
+		            console.log("✅ Respuesta del servidor:", response);
+		            if (response.result) {
+		                Notification("success", "✅ clietne eliminado con éxito.", response.message, "OK");
+		                table.ajax.reload();
+		            } else {
+		                Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+		            }
+		        },
+		        error: function (xhr, status, error) {
+		            console.error("🚨 Error en la petición:", status, error);
+		            Notification("error", "🚨 Error en la petición", status, "OK");
+		        }
+		    });
+		});
+
+
+
+		$(document).on('click', '.edit', function () {
+		    let table = $('.table').DataTable();
+		    let rowData = table.row($(this).closest('tr')).data();
+
+		    if (rowData) {
+		        let code = rowData.nit;
+		        let url = `/supplier/Edit_Supplier/${code}/`;
+		        location.href = url;
+		        console.log("📌 PK:", pk, "🔢 Código:", code);
+		    } else {
+		        console.error("⚠ No se encontraron datos de la fila.");
+		    }
+		});
+	});
+</script>
+{% endblock %}

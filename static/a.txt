@@ -1,0 +1,65 @@
+const sr = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+sr.lang = 'es-ES';
+sr.continuous = true; // Deja que escuche continuamente
+sr.interimResults = false; // No muestra resultados intermedios
+
+function hablar(texto) {
+  const utterance = new SpeechSynthesisUtterance(texto);
+  utterance.lang = 'es-ES';
+  window.speechSynthesis.speak(utterance);
+}
+
+let esperandoRespuesta = false; // Para saber si estamos esperando una respuesta
+let preguntaActual = ''; // Para guardar la pregunta pendiente
+
+// Cuando el bot recibe una respuesta
+sr.onresult = async event => {
+  const texto = event.results[event.resultIndex][0].transcript.toLowerCase();
+  document.getElementById("texto").textContent = `Tú: ${texto}`;
+  
+  let response = "Disculpa, no te entendí.";
+
+  // Si mencionas "jimmy", empieza la conversación
+  if (texto.includes("jimmy") && !esperandoRespuesta) {
+    response = '¡Hola! ¿En qué puedo ayudarte hoy?';
+    hablar(response);
+  }
+
+  // Si el bot espera una respuesta sobre el tipo de reporte
+  if (esperandoRespuesta) {
+    if (texto.includes('ventas') || texto.includes('producto')) {
+      response = `Perfecto, generaré un reporte de ${texto}. ¿Algo más que te gustaría saber?`;
+      esperandoRespuesta = false; // Dejamos de esperar respuesta
+      hablar(response);
+    } else {
+      response = "No entendí qué tipo de reporte quieres. ¿Podrías especificar? Por ejemplo, 'ventas' o 'producto'.";
+      hablar(response);
+    }
+  } 
+  // Si el usuario menciona "reporte", preguntamos qué tipo de reporte
+  else if (texto.includes('reporte')) {
+    response = '¿Qué tipo de reporte quieres? ¿Ventas, productos, o algo más?';
+    esperandoRespuesta = true; // Ahora esperamos una respuesta
+    hablar(response);
+  } 
+  else {
+    response = "Disculpa, no te entendí. ¿Podrías repetir?";
+    hablar(response);
+  }
+
+  // Mostrar la respuesta en la pantalla
+  document.getElementById("respuesta").textContent = response;
+};
+
+// Si hay un error, lo registramos
+sr.onerror = event => {
+  console.error("Error:", event.error);
+};
+
+// Se reinicia el reconocimiento sin detenerse
+sr.onend = () => {
+  sr.start(); // Esto garantiza que siempre siga escuchando
+};
+
+// Iniciamos el reconocimiento de voz
+sr.start();

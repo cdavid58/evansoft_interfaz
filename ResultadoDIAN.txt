@@ -1,0 +1,1 @@
+{'result': {'result': True, 'message': 'Document invoice discounted correctly.'}, 'message': 'Factura 7208 creada con éxito.', 'number': 7208, 'invoice_id': 26664, 'result_dian': None}

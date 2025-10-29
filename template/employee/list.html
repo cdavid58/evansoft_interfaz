@@ -1,0 +1,333 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	.dataTables_paginate {
+	    overflow-x: auto;
+	    white-space: nowrap;
+	    display: flex;
+	    justify-content: center;
+	}
+
+	.dataTables_paginate .pagination {
+	    flex-wrap: nowrap;
+	}
+
+	@media screen and (max-width: 400px) {
+	    .dataTables_paginate {
+	        font-size: 12px;
+	    }
+	}
+</style>
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>Lista de empleados</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<select class="custom-select col-6 branch">
+			<option selected="" value="0">Elija Sucursal</option>
+			{% for i in list_branch %}
+				<option value="{{i.id}}">{{i.business_name}}</option>
+			{% endfor %}
+		</select>
+		<a class="btn btn-primary create_lient col-5" href="{% url 'Add_Employee' %}" role="button">Crear</a>
+	</div>
+</div>
+
+<div class="card-box mb-30 p-2">
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="data-table table table-stripe hover nowrap" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th class="table-plus datatable-nosort">Código</th>
+		                <th>Producto</th>
+		                <th>Caja</th>
+		                <th>Display</th>
+		                <th>Unidades</th>
+		                <th>Activo</th>
+		                <th>Acciones</th>
+		            </tr>
+		        </thead>
+		        <tbody></tbody>
+		    </table>
+		</div>
+	</div>
+</div>
+
+
+
+<div class="modal fade" id="payroll_basic" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title" id="modalResolutionLabel" style="color: white;">Declarar nómina básica</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="form_resolution">
+					<div class="form-group">
+						<label for="selectEmployee">Periodo de Pago</label>
+						<select class="form-control" id="payroll_period" name="employee_id">
+							<option value="5">Mensual</option>
+							<option value="4">Quincenal</option>
+							<option value="3">Catorcenal</option>
+							<option value="2">Decenal</option>
+							<option value="1">Semanal</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="start_date">Días Laborados</label>
+						<input type="number" class="form-control" id="days" name="days" placeholder="30">
+					</div>
+
+					<div class="form-group">
+						<label for="start_date">Nota</label>
+						<textarea class="form-control" id="notes" name="notes" placeholder="Observación"></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="declare_payroll">Consultar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade send_payroll" id="send_payroll" data-bs-keyboard="false" data-bs-backdrop="static" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg mt-6 modal-dialog-centered" role="document">
+    <div class="modal-content border-0">
+      <div class="modal-body p-0 d-flex flex-column justify-content-center align-items-center" style="min-height: 300px;">
+        <div class="spinner"></div>
+        <p class="mt-3 text-dark text_send_email"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+	$(document).ready(function () {
+		let branch_id = null
+		let employee_payroll_id = null
+		let active = true
+		$(".branch").change(function () {
+		    branch_id = $(this).val().trim();
+
+		    if (branch_id == 0) {
+		        Swal.fire({
+		            icon: "warning",
+		            title: "Sucursal no seleccionada",
+		            text: "Por favor, seleccione una sucursal para ver la lista de empleados.",
+		            confirmButtonText: "Entendido"
+		        });
+
+		        if ($.fn.DataTable.isDataTable('.table')) {
+		            let table = $('.table').DataTable();
+		            table.clear().draw();
+		        }
+		        return;
+		    }
+
+		    if ($.fn.DataTable.isDataTable('.table')) {
+		        $('.table').DataTable().destroy();
+		    }
+
+		    $('.table').DataTable({
+			    responsive: true,
+			    serverSide: true,
+			    processing: true,
+			    searching: true,
+			    pagingType: "simple_numbers",
+			    ajax: {
+			        url: "{% url 'Get_List_Employee' %}",
+			        type: "GET",
+			        headers: { "X-Requested-With": "XMLHttpRequest" },
+			        data: function (d) {
+			            d.pk_branch = branch_id;
+			            d.search = d.search || {};
+			            d.search.value = d.search.value || '';
+			        },
+			        dataSrc: function (json) {
+			            console.log("🔹 Respuesta del servidor:", json);
+			            return json.data || [];
+			        }
+			    },
+			    columns: [
+			        { data: "identification_number", title: "Documento I", className: "table-plus" },
+			        { data: "first_name", title: "Nombre y Apellido" },
+			        { data: "role__name", title: "Permiso" },
+			        { data: "email", title: "E-mail" },
+			        { data: "phone", title: "Telefono" },
+			        {
+			            data: "active",
+			            title: "Activo",
+			            render: function (data, type, row) {
+			                const selectedYes = data ? 'selected' : '';
+			                const selectedNo = !data ? 'selected' : '';
+			                return `
+			                    <select class="form-control form-control-sm select-active" data-pk="${row.pk}">
+			                        <option value="true" ${selectedYes}>SI</option>
+			                        <option value="false" ${selectedNo}>NO</option>
+			                    </select>
+			                `;
+			            }
+			        },
+			        {
+			            data: null,
+			            title: "Acciones",
+			            render: function (data, type, row) {
+			                return `
+			                    <div class="dropdown">
+			                        <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+			                            <i class="dw dw-more"></i>
+			                        </a>
+			                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+			                            <a class="dropdown-item" data-pk="${row.pk}" id="${row.pk}" href="/employee/Profile/${row.pk}"><i class="fa fa-eye"></i>Perfil</a>
+			                            <a class="dropdown-item payroll" data-pk="${row.pk}" id="${row.pk}" href="javascript:void(0);"><i class="dw dw-folder"></i> Nómina Básica</a>
+			                            <a class="dropdown-item edit" data-pk="${row.pk}" id="${row.pk}" href="javascript:void(0);"><i class="dw dw-edit2"></i> Editar</a>
+			                            <a class="dropdown-item delete" data-pk="${row.pk}" id="${row.pk}" href="javascript:void(0);"><i class="dw dw-delete-3"></i> Eliminar</a>
+			                        </div>
+			                    </div>`;
+			            }
+			        }
+			    ],
+			    lengthMenu: [5, 10, 20, 30, 40, 50],
+			    language: {
+			        url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+			    },
+			    drawCallback: function () {
+			        console.log('🔄 Tabla actualizada con nueva data');
+			    }
+			});
+		});
+
+		$(document).on('change','.select-active',function(){
+			active = $(this).val()
+			console.log(active)
+		})
+
+		$(document).on('click','.payroll',function(){
+			$("#payroll_basic").modal('show')
+			employee_payroll_id = this.id
+		})
+
+		$("#declare_payroll").click(function(){
+			$(".text_send_email").text('Estamos enviando la nomina, esto puede tomar unos minutos.');
+			$("#payroll_basic").modal('hide')
+			$("#send_payroll").modal('show')
+			data = {
+				employee_id : employee_payroll_id,
+				branch_id : "{{request.session.branch_id}}",
+				notes : $("#notes").val(),
+				days : $("#days").val(),
+				payroll_period : $("#payroll_period").val()
+			}
+			console.log(data)
+
+			$.ajax({
+				url: "{% url 'Payroll_Basic' %}",
+				data: data,
+				success: function(response){
+					console.log(response)
+					$("#send_payroll").modal('hide')
+					if (response.result) {
+						Swal.fire({
+                            icon: 'success',
+                            title: 'Tarea Finalizada',
+                            text: response.message,
+                            confirmButtonText: 'OK'
+                        })
+					}
+				}
+			})
+		})
+
+
+		$(document).on("click", ".delete", function () {
+		    let employee_id = this.id;
+		    let $btn = $(this);
+		    let table = $(".table").DataTable();
+		    let row = $btn.closest("tr");
+		    let rowData = table.row(row).data();
+		    console.log("📌 ID del empleado a eliminar:", employee_id);
+		    console.log("📌 Datos de la fila seleccionada:", rowData);
+		    if (!rowData) {
+		        console.error("🚨 Error: Código de empleado no encontrado.");
+		        Notification("error", "Oopss.. Algo salió mal.", "Código de empleado no encontrado.", "OK");
+		        return;
+		    }
+		    Swal.fire({
+		        icon: 'warning',
+		        title: '¿Eliminar empleado?',
+		        text: 'Esta acción no se puede deshacer.',
+		        showCancelButton: true,
+		        confirmButtonText: 'Sí, eliminar',
+		        cancelButtonText: 'Cancelar'
+		    }).then((result) => {
+		        if (result.isConfirmed) {
+		            $.ajax({
+		                url: "{% url 'Delete_Employee' %}",
+		                type: "POST",
+		                contentType: "application/json",
+		                data: JSON.stringify({
+		                    employee_id: employee_id,
+		                    employee_action: "{{request.session.pk_employee}}"
+		                }),
+		                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+		                success: function (response) {
+		                    console.log("✅ Respuesta del servidor:", response);
+		                    if (response.result) {
+		                        Swal.fire({
+		                            icon: 'success',
+		                            title: 'Empleado eliminado',
+		                            text: 'El empleado fue eliminado correctamente.',
+		                            confirmButtonText: 'OK'
+		                        }).then(() => {
+		                            table.ajax.reload();
+		                        });
+		                    } else {
+		                        Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+		                    }
+		                },
+		                error: function (xhr, status, error) {
+		                    console.error("🚨 Error en la petición:", status, error);
+		                    Notification("error", "Oopss.. Algo salió mal.", "Error en la petición: " + status, "OK");
+		                }
+		            });
+		        }
+		    });
+		});
+
+
+
+		$(document).on('click', '.edit', function () {
+		    let table = $('.table').DataTable();
+		    let rowData = table.row($(this).closest('tr')).data();
+
+		    if (rowData) {
+		        let code = rowData.pk;
+		        let url = `/employee/Edit_Employee/${code}/`;
+		        location.href = url;
+		        console.log("📌 PK:", pk, "🔢 Código:", code);
+		    } else {
+		        console.error("⚠ No se encontraron datos de la fila.");
+		    }
+		});
+	});
+</script>
+{% endblock %}

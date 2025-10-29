@@ -1,0 +1,307 @@
+{% extends '../base.html' %}
+{% load format_filters %}
+{% block content %}
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>Vamos a editar el producto</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<a class="btn btn-primary create_lient" href="{% url 'List_Inventory' %}" role="button">Lista de productos</a>
+	</div>
+</div>
+
+<form class="form_data">
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Código</label>
+				<input type="text" name="code" value="{{product.code}}" class="form-control">
+			</div>
+		</div>
+		<div class="col-md-4 col-sm-12">
+			<div class="form-group">
+				<label>Producto</label>
+				<input type="text" value="{{product.name}}" autofocus name="name"  class="form-control">
+			</div>
+		</div>
+		<div class="col-md-1 col-sm-12">
+			<div class="form-group">
+				<label>IVA</label>
+				<select class="custom-select col-12"  name="tax">
+					<option value="{{product.tax}}">{{product.tax}}</option>
+					{% for i in taxes %}
+						{% if i != product.tax %}
+							<option value="{{i}}">{{i}}</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Costo</label>
+				<input type="text" value="{{product.cost|miles}}" name="cost" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Impoconsumo</label>
+				<input type="text" value="{{product.ico|miles}}" name="ico"  class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-1 col-sm-12">
+			<div class="form-group">
+				<label>Descuento</label>
+				<input type="text" value="{{product.discount|miles}}" name="discount" class="form-control monto">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Static Box</label>
+				<input type="text" value="{{product.bale_static|miles}}" name="bale_static" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Box</label>
+				<input type="text"value="{{product.bale|miles}}" name="bale" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Static Bale</label>
+				<input type="text" value="{{product.display_static|miles}}" name="display_static" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Bale</label>
+				<input type="text" value="{{product.display|miles}}" name="display" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Static Unit</label>
+				<input type="text" value="{{product.unit_static|miles}}" name="unit_static" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Unit</label>
+				<input type="text" value="{{product.unit|miles}}" name="unit" class="form-control monto">
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 1 (Und)</label>
+				<input type="text" value="{{product.price_1|miles}}" name="price_1" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 2 (Paca)</label>
+				<input type="text" value="{{product.price_2|miles}}" name="price_2" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 3 (Caja)</label>
+				<input type="text" value="{{product.price_3|miles}}" name="price_3" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 4 (Und -Dcto)</label>
+				<input type="text" value="{{product.price_4|miles}}" name="price_4" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 5 (Paca -Dcto)</label>
+				<input type="text" value="{{product.price_5|miles}}" name="price_5" class="form-control monto">
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Precio 6 (Caja -Dcto)</label>
+				<input type="text" value="{{product.price_6|miles}}" name="price_6" class="form-control monto">
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-3 col-12">
+			<div class="form-group">
+				<label>Elije la sucursal</label>
+				<input type="text" value="{{product.branch_name}}" name="branchs" disabled class="form-control">
+			</div>
+		</div>
+		<div class="col-md-3 col-12">
+			<div class="form-group">
+				<label>Categorias</label>
+				<select class="custom-select2 col-12" name="category_id" style="width: 100%;">
+					<option selected="" value="{{product.category}}">{{product.category_name}}</option>
+					{% for i in categories %}
+						{% if i.id != product.category %}
+							<option value="{{i.id}}">{{i.name}}</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="col-md-4 col-12">
+			<div class="form-group">
+				<label>Unidad de Medida</label>
+				<select class="custom-select2 col-12" name="unit_measures" style="width: 100%;">
+					<option selected="" value="{{product.unit_measures}}">{{product.unit_measures_name}}</option>
+					{% for i in unit_measures %}
+						{% if i.id != product.unit_measures %}
+							<option value="{{i.id}}">{{i.name}}</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="col-md-2 col-12">
+			<div class="form-group">
+				<label>Marca</label>
+				<input type="text" value="{{product.brand}}" name="brand" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<a class="btn btn-primary edit_product" href="javascript:void(0);" role="button">Actualizar Producto</a>
+		</div>
+	</div>
+</form>
+							
+
+{% endblock %}
+{% block script %}
+
+	<script>
+		$(document).ready(function(){
+
+			function formatearMiles(valor) {
+		        // Elimina todo excepto números
+		        valor = valor.replace(/\D/g, '');
+		        // Agrega puntos como separadores de miles
+		        return valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+		    }
+
+		    $(document).on("input", ".monto", function () {
+		        const input = $(this);
+		        const caretPos = this.selectionStart;
+
+		        // Limpia el valor
+		        let limpio = input.val().replace(/\./g, '');
+		        if (!limpio) return;
+
+		        // Formatea
+		        let formateado = formatearMiles(limpio);
+
+		        // Establece el valor formateado
+		        input.val(formateado);
+
+		        // Ajusta el cursor al final
+		        this.setSelectionRange(formateado.length, formateado.length);
+		    });
+
+		    $(document).on("input", ".montos", function () {
+		        const input = $(this);
+		        const caretPos = this.selectionStart;
+
+		        // Limpia el valor
+		        let limpio = input.val().replace(/\./g, '');
+		        if (!limpio) return;
+
+		        // Formatea
+		        let formateado = formatearMiles(limpio);
+
+		        // Establece el valor formateado
+		        input.val(formateado);
+
+		        // Ajusta el cursor al final
+		        this.setSelectionRange(formateado.length, formateado.length);
+		    });
+
+		    $(".edit_product").click(function(){
+		        let hasEmptyField = false;
+		        let selectedBranches = [{{branch_id|safe}}]; 
+		        let form = $(".form_data")[0];
+		        let formData = $(".form_data").serializeArray();
+		        let baseData = {};
+
+		        $.each(formData, function(index, field){
+				    if (!field.value.trim()) {
+				        hasEmptyField = true;
+				        console.warn(`⚠ El campo '${field.name}' está vacío.`);
+				    }
+
+				    let value = field.value.trim();
+
+				    // 🔹 Si el valor es numérico, hacer la conversión
+				    if (/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(value)) {
+				        value = value.replace(/\./g, "").replace(",", ".");
+				        value = parseFloat(value);
+				    }
+
+				    baseData[field.name] = value;
+				});
+
+
+		        if (hasEmptyField) {
+		            Swal.fire({
+		                icon: "error",
+		                title: "Campos vacíos",
+		                text: "Todos los campos son obligatorios. Por favor, complétalos antes de continuar.",
+		                confirmButtonText: "OK"
+		            });
+		            return;
+		        }
+
+		        let productsArray = [];
+		        selectedBranches.forEach(branchId => {
+		            let productData = { ...baseData, branch_id: branchId, id:"{{request.session.tmp_product_id}}", employee_id: "{{request.session.pk_employee}}" };
+		            productsArray.push(productData);
+		        });
+
+		        console.log("📌 Datos finales:", productsArray);
+		        // productsArray[0]['code'] = {{code|safe}};
+
+		        $.ajax({
+		            url: "{% url 'Save_Product' %}",
+		            type: "POST",
+		            contentType: "application/json",
+		            data: JSON.stringify(productsArray),
+		            headers: {
+		                "X-CSRFToken": "{{ csrf_token }}"
+		            },
+		            success: function(response){
+		                console.log("✅ Respuesta del servidor:", response);
+		                
+		                if(response.result){
+		                    Notification("success", "✅Producto Creado con éxito.", response.message, "OK");
+
+		                    // 🔹 Resetear formulario y limpiar selects
+		                } else {
+		                    Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+		                }
+		            },
+		            error: function(xhr, status, error){
+		                console.error("🚨 Error en la petición:", status, error);
+		                Notification("error", "🚨 Error en la petición", status, "OK");
+		            }
+		        });
+		    });
+		});
+	</script>
+{% endblock %}

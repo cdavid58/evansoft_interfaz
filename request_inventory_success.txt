@@ -1,0 +1,985 @@
+URL: https://api.evansoft.co/inventory/Get_All_Category/
+Method: POST
+Payload: {"branch_id": 6}
+Status: 200
+Response: {
+  "result": false,
+  "message": null,
+  "list_categories": [
+    {
+      "id": 3,
+      "name": "General",
+      "company_id": 7
+    },
+    {
+      "id": 191,
+      "name": "GENERAL",
+      "company_id": 7
+    },
+    {
+      "id": 192,
+      "name": "FITOCOL",
+      "company_id": 7
+    },
+    {
+      "id": 193,
+      "name": "QUICK",
+      "company_id": 7
+    },
+    {
+      "id": 194,
+      "name": "STOMIL",
+      "company_id": 7
+    },
+    {
+      "id": 195,
+      "name": "SATOOMI",
+      "company_id": 7
+    },
+    {
+      "id": 196,
+      "name": "SIN MARCA",
+      "company_id": 7
+    },
+    {
+      "id": 197,
+      "name": "FRESLHY",
+      "company_id": 7
+    },
+    {
+      "id": 198,
+      "name": "JAPON",
+      "company_id": 7
+    },
+    {
+      "id": 199,
+      "name": "FRUTALES",
+      "company_id": 7
+    },
+    {
+      "id": 200,
+      "name": "FRESHLY",
+      "company_id": 7
+    },
+    {
+      "id": 201,
+      "name": "DR ROJAS",
+      "company_id": 7
+    },
+    {
+      "id": 202,
+      "name": "BIOCORP",
+      "company_id": 7
+    },
+    {
+      "id": 203,
+      "name": "LEDMAR",
+      "company_id": 7
+    },
+    {
+      "id": 204,
+      "name": "NATURCOL",
+      "company_id": 7
+    },
+    {
+      "id": 205,
+      "name": "GEOFARMA",
+      "company_id": 7
+    },
+    {
+      "id": 206,
+      "name": "FUXION",
+      "company_id": 7
+    },
+    {
+      "id": 207,
+      "name": "DISNATURA",
+      "company_id": 7
+    },
+    {
+      "id": 208,
+      "name": "AIVAN",
+      "company_id": 7
+    },
+    {
+      "id": 209,
+      "name": "MI TIERRA",
+      "company_id": 7
+    },
+    {
+      "id": 210,
+      "name": "FUNAT",
+      "company_id": 7
+    },
+    {
+      "id": 211,
+      "name": "GELA",
+      "company_id": 7
+    },
+    {
+      "id": 212,
+      "name": "JAQUIN",
+      "company_id": 7
+    },
+    {
+      "id": 213,
+      "name": " MI TIERRA",
+      "company_id": 7
+    },
+    {
+      "id": 214,
+      "name": "MI TIETTA",
+      "company_id": 7
+    },
+    {
+      "id": 215,
+      "name": "PRAME",
+      "company_id": 7
+    },
+    {
+      "id": 216,
+      "name": "ANDRES RAMIREZ",
+      "company_id": 7
+    },
+    {
+      "id": 217,
+      "name": "COLON CLEANSER",
+      "company_id": 7
+    },
+    {
+      "id": 218,
+      "name": "XTRALIFE",
+      "company_id": 7
+    },
+    {
+      "id": 219,
+      "name": "ATHOS",
+      "company_id": 7
+    },
+    {
+      "id": 220,
+      "name": "SOLUNA",
+      "company_id": 7
+    },
+    {
+      "id": 221,
+      "name": "LA BOTICA",
+      "company_id": 7
+    },
+    {
+      "id": 222,
+      "name": "INTERAMERICANA",
+      "company_id": 7
+    },
+    {
+      "id": 223,
+      "name": "NATURAL S.CH",
+      "company_id": 7
+    },
+    {
+      "id": 224,
+      "name": "OSANA",
+      "company_id": 7
+    },
+    {
+      "id": 225,
+      "name": "EL EDEN",
+      "company_id": 7
+    },
+    {
+      "id": 226,
+      "name": "NATURALLY",
+      "company_id": 7
+    },
+    {
+      "id": 227,
+      "name": "LELVE",
+      "company_id": 7
+    },
+    {
+      "id": 228,
+      "name": "MOUNTAIN",
+      "company_id": 7
+    },
+    {
+      "id": 229,
+      "name": "HEEL",
+      "company_id": 7
+    },
+    {
+      "id": 230,
+      "name": "WEEDBIO",
+      "company_id": 7
+    },
+    {
+      "id": 231,
+      "name": "FLOMECOL",
+      "company_id": 7
+    },
+    {
+      "id": 232,
+      "name": "SANAF",
+      "company_id": 7
+    },
+    {
+      "id": 233,
+      "name": "GENESIS",
+      "company_id": 7
+    },
+    {
+      "id": 234,
+      "name": "MACEL",
+      "company_id": 7
+    },
+    {
+      "id": 235,
+      "name": "VITALEX",
+      "company_id": 7
+    },
+    {
+      "id": 236,
+      "name": "ARCOIRIS",
+      "company_id": 7
+    },
+    {
+      "id": 237,
+      "name": "NUTRISA",
+      "company_id": 7
+    },
+    {
+      "id": 238,
+      "name": "HEALTHY",
+      "company_id": 7
+    },
+    {
+      "id": 239,
+      "name": "ARCO IRIS",
+      "company_id": 7
+    },
+    {
+      "id": 240,
+      "name": "LHA",
+      "company_id": 7
+    },
+    {
+      "id": 241,
+      "name": "AMIGA",
+      "company_id": 7
+    },
+    {
+      "id": 242,
+      "name": ".",
+      "company_id": 7
+    },
+    {
+      "id": 243,
+      "name": "SYSTEMS",
+      "company_id": 7
+    },
+    {
+      "id": 244,
+      "name": "LIU",
+      "company_id": 7
+    },
+    {
+      "id": 245,
+      "name": "EDERVIT",
+      "company_id": 7
+    },
+    {
+      "id": 246,
+      "name": "ELITE MAX",
+      "company_id": 7
+    },
+    {
+      "id": 247,
+      "name": "NATURAL MEDIX",
+      "company_id": 7
+    },
+    {
+      "id": 248,
+      "name": "ESSENTIALS",
+      "company_id": 7
+    },
+    {
+      "id": 249,
+      "name": "LABFARVE",
+      "company_id": 7
+    },
+    {
+      "id": 250,
+      "name": "ESSENTIAL",
+      "company_id": 7
+    },
+    {
+      "id": 251,
+      "name": "IMMUNOTEC",
+      "company_id": 7
+    },
+    {
+      "id": 252,
+      "name": "MEDICO MARIO",
+      "company_id": 7
+    },
+    {
+      "id": 253,
+      "name": "OMNILIFE",
+      "company_id": 7
+    },
+    {
+      "id": 254,
+      "name": "NATUMIX",
+      "company_id": 7
+    },
+    {
+      "id": 255,
+      "name": "DUO",
+      "company_id": 7
+    },
+    {
+      "id": 256,
+      "name": "+ SEX POWER",
+      "company_id": 7
+    },
+    {
+      "id": 257,
+      "name": "LA ABUELA",
+      "company_id": 7
+    },
+    {
+      "id": 258,
+      "name": "ESSENTNUT",
+      "company_id": 7
+    },
+    {
+      "id": 259,
+      "name": "ARMESO",
+      "company_id": 7
+    },
+    {
+      "id": 260,
+      "name": "SALDAÑA VALLEY",
+      "company_id": 7
+    },
+    {
+      "id": 261,
+      "name": "MEDY",
+      "company_id": 7
+    },
+    {
+      "id": 262,
+      "name": "GOFIT",
+      "company_id": 7
+    },
+    {
+      "id": 263,
+      "name": "UPN",
+      "company_id": 7
+    },
+    {
+      "id": 264,
+      "name": "IMPROFARME",
+      "company_id": 7
+    },
+    {
+      "id": 265,
+      "name": "LUMIKA",
+      "company_id": 7
+    },
+    {
+      "id": 266,
+      "name": "BIBAFIT",
+      "company_id": 7
+    },
+    {
+      "id": 267,
+      "name": "DISTRIMARK",
+      "company_id": 7
+    },
+    {
+      "id": 268,
+      "name": "DULPROMAX",
+      "company_id": 7
+    },
+    {
+      "id": 269,
+      "name": "ZOI",
+      "company_id": 7
+    },
+    {
+      "id": 270,
+      "name": "GNS",
+      "company_id": 7
+    },
+    {
+      "id": 271,
+      "name": "QUICKEN",
+      "company_id": 7
+    },
+    {
+      "id": 272,
+      "name": "ARMESO AMPOLLA",
+      "company_id": 7
+    },
+    {
+      "id": 273,
+      "name": "GREENWORD",
+      "company_id": 7
+    },
+    {
+      "id": 274,
+      "name": "GREENWORLD",
+      "company_id": 7
+    },
+    {
+      "id": 275,
+      "name": "SOLGAR",
+      "company_id": 7
+    },
+    {
+      "id": 276,
+      "name": "DICOLFARMA",
+      "company_id": 7
+    },
+    {
+      "id": 277,
+      "name": "BIO-OIL",
+      "company_id": 7
+    },
+    {
+      "id": 278,
+      "name": "ELITENUT",
+      "company_id": 7
+    },
+    {
+      "id": 279,
+      "name": "SILVER",
+      "company_id": 7
+    },
+    {
+      "id": 280,
+      "name": "NATURAL SANT",
+      "company_id": 7
+    },
+    {
+      "id": 281,
+      "name": "COLON CLEANCER",
+      "company_id": 7
+    },
+    {
+      "id": 282,
+      "name": "NUTRIVEX",
+      "company_id": 7
+    },
+    {
+      "id": 283,
+      "name": "BIOWOND",
+      "company_id": 7
+    },
+    {
+      "id": 284,
+      "name": "JUAN AMERICANO",
+      "company_id": 7
+    },
+    {
+      "id": 285,
+      "name": "4LIFE",
+      "company_id": 7
+    },
+    {
+      "id": 286,
+      "name": "COSMENALES",
+      "company_id": 7
+    },
+    {
+      "id": 287,
+      "name": "NATURAL. EFFECTIVE",
+      "company_id": 7
+    },
+    {
+      "id": 288,
+      "name": "SOLAROMA",
+      "company_id": 7
+    },
+    {
+      "id": 289,
+      "name": "DSOLAROMA",
+      "company_id": 7
+    },
+    {
+      "id": 290,
+      "name": "ARMENSO AMPOLLA",
+      "company_id": 7
+    },
+    {
+      "id": 291,
+      "name": "GNV",
+      "company_id": 7
+    },
+    {
+      "id": 292,
+      "name": "MIEL DE LA VIDA",
+      "company_id": 7
+    },
+    {
+      "id": 293,
+      "name": "LA MIEL DE LA VIDA",
+      "company_id": 7
+    },
+    {
+      "id": 294,
+      "name": "NATURALISIMA",
+      "company_id": 7
+    },
+    {
+      "id": 295,
+      "name": "DR. ROJAS",
+      "company_id": 7
+    },
+    {
+      "id": 296,
+      "name": "DE LA VIDA",
+      "company_id": 7
+    },
+    {
+      "id": 297,
+      "name": "BIO NATURE",
+      "company_id": 7
+    },
+    {
+      "id": 298,
+      "name": "BIOSATIVA",
+      "company_id": 7
+    },
+    {
+      "id": 299,
+      "name": "MUSCLETECH",
+      "company_id": 7
+    },
+    {
+      "id": 300,
+      "name": "CIELA",
+      "company_id": 7
+    },
+    {
+      "id": 301,
+      "name": "ALNATURE",
+      "company_id": 7
+    },
+    {
+      "id": 302,
+      "name": "WORKOUT",
+      "company_id": 7
+    },
+    {
+      "id": 303,
+      "name": "VITALCOVERY",
+      "company_id": 7
+    },
+    {
+      "id": 304,
+      "name": "GMN",
+      "company_id": 7
+    },
+    {
+      "id": 305,
+      "name": "ESSENCIAL",
+      "company_id": 7
+    },
+    {
+      "id": 306,
+      "name": "MAGPRO",
+      "company_id": 7
+    },
+    {
+      "id": 307,
+      "name": "BENDITAMADRE",
+      "company_id": 7
+    },
+    {
+      "id": 308,
+      "name": "NUTRITIVA",
+      "company_id": 7
+    },
+    {
+      "id": 309,
+      "name": "RENACE",
+      "company_id": 7
+    },
+    {
+      "id": 310,
+      "name": "ESENTIAL",
+      "company_id": 7
+    },
+    {
+      "id": 311,
+      "name": "EV",
+      "company_id": 7
+    },
+    {
+      "id": 312,
+      "name": "FITO MEDICS",
+      "company_id": 7
+    },
+    {
+      "id": 313,
+      "name": "FITO MEDIC",
+      "company_id": 7
+    },
+    {
+      "id": 314,
+      "name": "FITOMEDICS",
+      "company_id": 7
+    },
+    {
+      "id": 315,
+      "name": "TODAY",
+      "company_id": 7
+    },
+    {
+      "id": 316,
+      "name": "NYV",
+      "company_id": 7
+    },
+    {
+      "id": 317,
+      "name": "MUSCLEFUSION",
+      "company_id": 7
+    },
+    {
+      "id": 318,
+      "name": "GALLO",
+      "company_id": 7
+    },
+    {
+      "id": 319,
+      "name": "EL GALLO",
+      "company_id": 7
+    },
+    {
+      "id": 320,
+      "name": "VITAL COVERY",
+      "company_id": 7
+    },
+    {
+      "id": 321,
+      "name": "ROSS D ELEN",
+      "company_id": 7
+    },
+    {
+      "id": 322,
+      "name": "ROSS D´ELEN",
+      "company_id": 7
+    },
+    {
+      "id": 323,
+      "name": "ROSDELEN",
+      "company_id": 7
+    },
+    {
+      "id": 324,
+      "name": "LAB AMERICA",
+      "company_id": 7
+    },
+    {
+      "id": 325,
+      "name": "MEDICK",
+      "company_id": 7
+    },
+    {
+      "id": 326,
+      "name": "BOTANITAS",
+      "company_id": 7
+    },
+    {
+      "id": 327,
+      "name": "KOSMADERM",
+      "company_id": 7
+    },
+    {
+      "id": 328,
+      "name": "BEAUTY",
+      "company_id": 7
+    },
+    {
+      "id": 329,
+      "name": "FARID",
+      "company_id": 7
+    },
+    {
+      "id": 330,
+      "name": "NATURFAR",
+      "company_id": 7
+    },
+    {
+      "id": 331,
+      "name": "RAIZALIA",
+      "company_id": 7
+    },
+    {
+      "id": 332,
+      "name": "VITASOFT",
+      "company_id": 7
+    },
+    {
+      "id": 333,
+      "name": "NUTRAXIS",
+      "company_id": 7
+    },
+    {
+      "id": 334,
+      "name": "MINERALIN",
+      "company_id": 7
+    },
+    {
+      "id": 335,
+      "name": "MED-DISOMEGA",
+      "company_id": 7
+    },
+    {
+      "id": 336,
+      "name": "CRYSTAL ALUM",
+      "company_id": 7
+    },
+    {
+      "id": 337,
+      "name": "SALOME",
+      "company_id": 7
+    },
+    {
+      "id": 338,
+      "name": "ALDANKEMI",
+      "company_id": 7
+    },
+    {
+      "id": 339,
+      "name": "BAWIS",
+      "company_id": 7
+    },
+    {
+      "id": 340,
+      "name": "GREEN LIKE",
+      "company_id": 7
+    },
+    {
+      "id": 341,
+      "name": "ANDALUZ",
+      "company_id": 7
+    },
+    {
+      "id": 342,
+      "name": "+ PLUS",
+      "company_id": 7
+    },
+    {
+      "id": 343,
+      "name": "NATURAL + PLUS",
+      "company_id": 7
+    },
+    {
+      "id": 344,
+      "name": "NATURASOL",
+      "company_id": 7
+    },
+    {
+      "id": 345,
+      "name": "INTERBEL",
+      "company_id": 7
+    },
+    {
+      "id": 346,
+      "name": "SOFI",
+      "company_id": 7
+    },
+    {
+      "id": 347,
+      "name": "DOCTOR ROJAS",
+      "company_id": 7
+    },
+    {
+      "id": 348,
+      "name": "HERBAPLANT",
+      "company_id": 7
+    },
+    {
+      "id": 349,
+      "name": "YOMA",
+      "company_id": 7
+    },
+    {
+      "id": 350,
+      "name": "PADEL",
+      "company_id": 7
+    },
+    {
+      "id": 351,
+      "name": "LA MANCHURIA",
+      "company_id": 7
+    },
+    {
+      "id": 352,
+      "name": "MOLI",
+      "company_id": 7
+    },
+    {
+      "id": 353,
+      "name": "CREAVIDA",
+      "company_id": 7
+    },
+    {
+      "id": 354,
+      "name": "EUVI",
+      "company_id": 7
+    },
+    {
+      "id": 355,
+      "name": "ELITEMAX",
+      "company_id": 7
+    },
+    {
+      "id": 356,
+      "name": "BIOSA",
+      "company_id": 7
+    },
+    {
+      "id": 357,
+      "name": "NUTRACEUTICA",
+      "company_id": 7
+    },
+    {
+      "id": 358,
+      "name": "SANLY",
+      "company_id": 7
+    },
+    {
+      "id": 359,
+      "name": "DIOR",
+      "company_id": 7
+    },
+    {
+      "id": 360,
+      "name": "BIOPRONAT",
+      "company_id": 7
+    },
+    {
+      "id": 361,
+      "name": "NT LABS",
+      "company_id": 7
+    },
+    {
+      "id": 362,
+      "name": "ORGANIC",
+      "company_id": 7
+    },
+    {
+      "id": 363,
+      "name": "FITO MEDIC.",
+      "company_id": 7
+    },
+    {
+      "id": 364,
+      "name": "MNS",
+      "company_id": 7
+    },
+    {
+      "id": 365,
+      "name": "MARIA SALOME",
+      "company_id": 7
+    },
+    {
+      "id": 366,
+      "name": "NUTRABIOTICS",
+      "company_id": 7
+    },
+    {
+      "id": 367,
+      "name": "NATURALMENTE",
+      "company_id": 7
+    },
+    {
+      "id": 368,
+      "name": "D ROJAS",
+      "company_id": 7
+    },
+    {
+      "id": 369,
+      "name": "IRENE MELO",
+      "company_id": 7
+    },
+    {
+      "id": 370,
+      "name": "BARBER",
+      "company_id": 7
+    },
+    {
+      "id": 371,
+      "name": "NUEVA VIDA",
+      "company_id": 7
+    },
+    {
+      "id": 372,
+      "name": "G.S.A",
+      "company_id": 7
+    },
+    {
+      "id": 373,
+      "name": "RONY COLEMAN",
+      "company_id": 7
+    },
+    {
+      "id": 374,
+      "name": "NADA",
+      "company_id": 7
+    },
+    {
+      "id": 375,
+      "name": "MAE",
+      "company_id": 7
+    },
+    {
+      "id": 376,
+      "name": "LABOTICA",
+      "company_id": 7
+    },
+    {
+      "id": 377,
+      "name": "NO APLICA",
+      "company_id": 7
+    },
+    {
+      "id": 378,
+      "name": "HERBALIC",
+      "company_id": 7
+    },
+    {
+      "id": 379,
+      "name": "Sin marca",
+      "company_id": 7
+    },
+    {
+      "id": 380,
+      "name": "MEDICAL GREEN",
+      "company_id": 7
+    },
+    {
+      "id": 381,
+      "name": "AMERICAN NUTRITION",
+      "company_id": 7
+    },
+    {
+      "id": 382,
+      "name": "GIOMER",
+      "company_id": 7
+    },
+    {
+      "id": 383,
+      "name": "EVONATUTA",
+      "company_id": 7
+    },
+    {
+      "id": 384,
+      "name": "NATURALS",
+      "company_id": 7
+    }
+  ]
+}

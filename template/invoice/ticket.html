@@ -1,0 +1,406 @@
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+{% load format_filters %}
+<style>
+
+    @page {
+        size: 80mm auto; /* Ancho típico de impresora térmica */
+        margin: 0;       /* Sin márgenes */
+    }
+
+    @media print {
+        
+    }
+
+    @media print {
+        html, body {
+            width: 80mm;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+
+        #container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #footer {
+            page-break-inside: avoid;
+            margin-top: 10px;
+        }
+    }
+
+
+
+
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: Roboto, sans-serif;
+    }
+
+    html, body {
+        width: 100%;
+        vertical-align: baseline;
+    }
+
+    body {
+        line-height: 1.4;
+        font-size: 12px;
+        background: #fff;
+        color: #000;
+    }
+
+    #container {
+        width: 95%;
+        margin: 0px;
+        padding: 1px;
+        text-align: center !important;
+    }
+
+    #header {
+        text-align: center;
+    }
+
+    #header > #reference p {
+        margin: 2px 0;
+        font-size: 14px;
+    }
+
+    .table {
+        width: 100%;
+        font-size: 13px;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        border: 1px solid #4f4e4e;
+        padding: 3px;
+        text-align: left;
+    }
+
+    .table th {
+        font-weight: bold;
+    }
+
+    .table td {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .vertical-align-top {
+        vertical-align: top;
+    }
+
+    .text-right {
+        text-align: right !important;
+    }
+
+    #empresa-header {
+        text-align: center;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    #empresa-header1 {
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .table tr:nth-child(odd) td {
+        background-color: rgb(248, 249, 250);
+    }
+</style>
+
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="reference">
+                <!-- <p>DOCUMENTO EQUIVALENTE ELECTRONICO DEL TIQUETE DE MAQUINA REGISTRADORA CON SISTEMA P.O.S.</p> -->
+                <p>
+                    {% if invoice.type_document != 99 %}
+                        DOCUMENTO EQUIVALENTE ELECTRONICO DEL SISTEMA P.O.S.
+                    {% else %}
+                        DOCUMENTO PARA ENTREGA DE MERCANCÍA
+                    {% endif %}
+                </p>
+                <p style="font-weight: bold;">Fecha Emisión: {{invoice.date}}</p>
+                {% if request.session.type_document != 99 %}
+                    <p>Fecha Validación DIAN: {{invoice.date}}<br>Hora Validación DIAN: {{invoice.time}}</p>
+                {% else %}
+                    <p>Fecha de generación: {{invoice.date}}<br>Hora de generación: {{invoice.time}}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="empresa-header">
+            {{company.business_name|title}}<br>
+            Sucursal - {{branch.business_name|title}}
+        </div>
+        <div id="empresa-header1">
+            {% if invoice.type_document != 99 %}
+                <p style="font-size: 13px">NIT: {{company.documentI}} - 
+                    {% if company.type_regime == 1 %}
+                        Responsable de IVA - Obligación: Declarar y Pagar
+                    {% else %}
+                        No Responsable de IVA
+                    {% endif %}
+                </p>
+            {% endif %}
+            <p style="font-size: 13px">Tipo Documento ID: {% if company.type_document_identification == 3 %}Cédula de Ciudadanía{% else %}NIT{% endif %}</p>
+            <p style="font-size: 13px">
+                {% if company.type_document_identification == 3 %}Cédula de Ciudadanía: {{company.documentI}}{% else %}NIT: {{company.documentI}}{% endif %}
+            </p>
+            {% if invoice.type_document != 99 %}
+                <p style="font-size: 14px">Resolución de Facturación Electrónica No. {{resolution.resolution}} de {{resolution.resolution_date}}, 
+                    <br>
+                    Prefijo: {{resolution.prefix}},  &nbsp;Rango {{resolution.from}} Al {{resolution.to}} 
+                    <br> Vigencia Desde: {{resolution.date_from}} Hasta: {{resolution.date_to}}
+                </p>
+            {% endif %}
+            <p style="font-size: 13px">{{branch.municipality|title}} - Colombia</p>
+            <p style="font-size: 13px">{{branch.address}}</p>
+            <p style="font-size: 13px">Teléfono - {{branch.phone_1}} {% if branch.phone_2 %} - {{branch.phone_2}}{% endif %}</p>
+            <p style="font-size: 13px">E-mail: {{branch.email}}</p><br>
+            <p style="font-size: 13px; font-weight: bold;">
+                {% if invoice.type_document != 99 %}
+                    FACTURA DE VENTA: {{resolution.prefix}} - {{invoice.number}}
+                {% else %}
+                    DOC. PARA ENTREGA DE MERCANCIA: {{resolution.prefix}} - {{invoice.number}}
+                {% endif %}
+            </p><br>
+            {% if invoice.annulled %}
+                <p style="font-size: 14px; font-weight: bold;">ESTE DOCUMENTO FUE ANULADO</p>
+                <p style="font-size: 14px; font-weight: bold;">NOTA CREDITO APLICADA</p><br>
+            {% endif %}
+            {% if invoice.type_document != 99 %}
+                <img  style="width: 86px; height: auto;" src="{{qr}}" alt="QR">
+            {% endif %}
+        </div><br>
+
+
+        <table class="table">
+            <tr>
+                <td style="text-align: left; font-size: 14px;">CC o NIT: {{customer.identification_number}}</td>
+                <td style="text-align: left; font-size: 14px;">Forma de Pago:{{payment_form.payment_form__name}}
+
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Cliente: {{customer.name}}</td>
+                <td style="text-align: left; font-size: 14px;">Medio de Pago: {{payment_form.payment_method__name}}  </td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Dirección: 
+                    {% if customer.identification_number == 222222222222 %}
+                        {{branch.address}}
+                    {% else %}
+                        {{customer.address}}
+                    {% endif %}
+                </td>
+                <td style="text-align: left; font-size: 14px;">Plazo Para Pagar: {{payment_form.duration_measure}} {% if payment_form.duration_measure == 1 %}Día{% else %}Días{% endif %}</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Teléfono: 
+                    {% if customer.identification_number == 222222222222 %}
+                        {{branch.phone_1}}
+                    {% else %}
+                        {{customer.phone}}
+                    {% endif %}
+                </td>
+                <td style="text-align: left; font-size: 14px;">Fecha Vencimiento: {{payment_form.date_only}}</td>
+            </tr>
+        </table>
+        <br>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center w-80">Descripción</th>
+                    <th class="text-center">Cant</th>
+                    <th class="text-center">Val. Unit</th>
+                    <th class="text-center">Val. IVA</th>
+                    <!-- <th class="text-center">ICO</th> -->
+                    <th class="text-center">Dcto</th>
+                    <th class="text-center">SubTotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in details %}
+                    <tr>
+                        <td style="text-align: left;">{{i.name}}</td>
+                        <td class="text-right">{{i.quantity}}</td>
+                        <td class="text-right">${{i.cost|miles}}</td>
+                        <td class="text-right">{{i.valtax|miles}}</td>
+                        <!-- <td class="text-right">{{i.ico|miles}}</td> -->
+                        <td class="text-right">{{i.discount|miles}}</td>
+                        <td class="text-right">${{i.subtotal|miles}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <div class="container-fluid">
+            <div class="row">
+                <div style="width:100%;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="text-align: center !important;">Impuestos</th>
+                                <th class="text-center" style="text-align: center !important;">Totales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                <!-- Tabla de Impuestos -->
+                                <table class="table" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th class="text-center">Base</th>
+                                            <th class="text-center">%</th>
+                                            <th class="text-center">Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in list_taxes %}
+                                            <tr>
+                                                <td style="text-align: left !important;">{{ i.name }}</td>
+                                                <td class="text-right">{{ i.taxable_amount|miles }}</td>
+                                                <td class="text-right">{{ i.percent }}%</td>
+                                                <td class="text-right">{{ i.tax_amount|miles }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% if other_charges %}                                    
+                                    <h4 style="text-align: center !important;" class="mt-3">Otros cargos</h6>
+                                    <table class="table" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Concepto</th>
+                                                <th class="text-center">Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for i in other_charges %}
+                                                <tr>
+                                                    <td style="text-align: left !important;">{{i.note}}</td>
+                                                    <td class="text-right">${{ i.amount|miles }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            </td>
+
+                                <td style="width: 50%;">
+                                    <table class="table" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Tipo</th>
+                                                <th class="text-center">Base</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- <tr>
+                                                <td>Neto:</td>
+                                                <td class="text-right">${{totals.neto|miles}}</td>
+                                            </tr> -->
+                                            <tr>
+                                                <td>Base:</td>
+                                                <td class="text-right">${{totals.subtotals|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Impuestos:</td>
+                                                <td class="text-right">${{totals.tax|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>ICO:</td>
+                                                <td class="text-right">${{totals.ico|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Desc. Linea:</td>
+                                                <td class="text-right">${{totals.discount|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Otros Cargos:</td>
+                                                <td class="text-right">${{total_other_charges|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total:</td>
+                                                <td class="text-right">${{totals.totals|miles}}</td>
+                                            </tr>                                            
+                                            <tr>
+                                                <td>Desc. Global:</td>
+                                                <td class="text-right">$0</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total - Dcto G.:</td>
+                                                <td class="text-right">${{totals.totals_with_discount|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Pago con:</td>
+                                                <td class="text-right">${{invoice.import_received|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Importe devuelto:</td>
+                                                <td class="text-right">${{invoice.change|miles}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <br>
+        <div>
+            <p style="font-size: 12px; text-align:left;">
+               <strong> Nota: </strong>&nbsp;<span style="color: red;">{% if invoice.note %}{{invoice.note}}{% else %}No hay observaciones.{% endif %}</span>
+            </p>
+        </div>
+        <br>
+        <div>
+            <p style="font-size: 12px; text-align:center;">
+                <strong>Importante:</strong><br> Según lo establecido en el Estatuto del Consumidor (Ley 1480 de 2011),
+                las devoluciones o cambios solo aplican por garantía (productos defectuosos).
+                No se aceptan cambios ni devoluciones por decisiones personales del cliente.<br>
+                Agradecemos su comprensión.
+            </p>
+        </div>
+
+
+        <div id="footer">
+            <hr style="margin-bottom: 2px;">
+            <p id='mi-texto' style="font-size: 12px; text-align:center;">
+                {% if request.session.type_document != 99 %}
+                    Factura No: {{invoice.prefix}} - {{invoice.number}} 
+                {% else %}
+                    Documento de Entrega No: {{invoice.prefix}} - {{invoice.number}}
+                {% endif %}
+                <br> 
+                Fecha y Hora de Generación: {{invoice.date}} - {{invoice.time}}
+            </p>
+            {% if request.session.type_document != 99 %}
+                <p style="font-size: 10px; text-align:center;">
+                    {% if invoice.cufe %}
+                        CUFE: {{invoice.cufe}}
+                    {% else %}
+                    <span style="font-weight: bold;">
+                        Factura No enviada a la DIAN{% endif %}
+                    </span>
+                </p>
+            {% endif %}
+            <p id='mi-texto-1' style="font-size: 12px; text-align:center;">Factura electronica generada por Evansoft</p>
+        </div>
+    </div>
+</body>

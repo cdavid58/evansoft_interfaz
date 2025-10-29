@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba IndexedDB</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h1>Prueba IndexedDB: invoice_offline</h1>
+
+  <!-- Botones para invoices -->
+  <button id="btnInsertInvoice">Insertar registro en invoices</button>
+  <button id="btnSelectInvoice">Ver registros en invoices</button>
+  <button id="btnDeleteInvoice">Eliminar invoice con id=1</button>
+  <hr>
+
+  <!-- Botones para quotations -->
+  <button id="btnInsertQuotation">Insertar registro en quotations</button>
+  <button id="btnSelectQuotation">Ver registros en quotations</button>
+  <button id="btnDeleteQuotation">Eliminar quotation con id=1</button>
+  <hr>
+
+  <!-- Botones para inventory -->
+  <button id="btnInsertProduct">Insertar producto en inventory</button>
+  <button id="btnSelectProduct">Ver productos en inventory</button>
+  <button id="btnDeleteProduct">Eliminar producto con id=3</button>
+
+  <pre id="output"></pre>
+
+  <!-- Importar scripts -->
+  <script src="db.js"></script>
+  <script src="tables.js"></script>
+  <script src="insert.js"></script>
+  <script src="select.js"></script>
+  <script src="delete.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      
+      const sampleData = {
+        "details": [
+          {
+            "id": "4293",
+            "code": "7777",
+            "name": "CARAMELO DE LECHE DE CABRA",
+            "quantity": 1,
+            "price": 400,
+            "tax": 19,
+            "discount": 0,
+            "type_price": "1",
+            "ico": 0
+          }
+        ],
+        "date": "2025-08-22",
+        "customer_id": 5,
+        "name_customer": "CONSUMIDOR FINAL",
+        "type_document": 1,
+        "employee_id": 5,
+        "branch_id": 5,
+        "total": 0,
+        "payment_form": {
+          "payment_form_id": 1,
+          "payment_method_id": 10,
+          "payment_due_date": "2025-08-22",
+          "duration_measure": 0
+        },
+        "status": "Paid",
+        "anulled": false,
+        "credit_note_applied": false,
+        "prefix": "SETP",
+        "number": 1
+      };
+
+      const sampleProduct = {
+        "id": 3,
+        "code": "3",
+        "name": "TRATAMIENTO CAPILAR REPORALIZADOR VITAL COVERY",
+        "bale_static": 0,
+        "bale": 0,
+        "display_static": 0,
+        "display": 0,
+        "unit_static": 1,
+        "unit": 1000,
+        "tax": 19,
+        "cost": 0,
+        "price_1": 15500,
+        "price_2": 0,
+        "price_3": 0,
+        "price_4": 16500,
+        "price_5": 0,
+        "price_6": 0,
+        "discount": 0,
+        "ico": 0,
+        "active": true,
+        "brand": "SIN MARCA",
+        "category_id": 2,
+        "branch_id": 5,
+        "unit_measures_id": 70,
+        "employee_id": 5
+      };
+
+      const data ={
+        "product_id": 4293,
+        "quantity": 1,
+        "type_unit": "1"
+      }
+      
+      insertRecord("reserved", data, function(id) {
+        $("#output").text("✅ Reserved insertado con id: " + id);
+      });
+
+
+      // Insertar en invoices
+      $("#btnInsertInvoice").on("click", function() {
+        insertRecord("invoices", sampleData, function(id) {
+          $("#output").text("✅ Invoice insertado con id: " + id);
+        });
+      });
+
+      // Insertar en quotations
+      $("#btnInsertQuotation").on("click", function() {
+        insertRecord("quotations", sampleData, function(id) {
+          $("#output").text("✅ Quotation insertado con id: " + id);
+        });
+      });
+
+      // Insertar producto en inventory
+      $("#btnInsertProduct").on("click", function() {
+        insertRecord("inventory", sampleProduct, function(id) {
+          $("#output").text("✅ Producto insertado con id: " + id);
+        });
+      });
+
+      // Seleccionar invoices
+      $("#btnSelectInvoice").on("click", async () => {
+        try {
+          const data = await getAllData("invoices");
+          $("#output").text(JSON.stringify(data, null, 2));
+        } catch (err) {
+          $("#output").text("❌ Error: " + err);
+        }
+      });
+
+      // Seleccionar quotations
+      $("#btnSelectQuotation").on("click", async () => {
+        try {
+          const data = await getAllData("quotations");
+          $("#output").text(JSON.stringify(data, null, 2));
+        } catch (err) {
+          $("#output").text("❌ Error: " + err);
+        }
+      });
+
+      // Seleccionar productos en inventory
+      $("#btnSelectProduct").on("click", async () => {
+        try {
+          const data = await getAllData("inventory");
+          $("#output").text(JSON.stringify(data, null, 2));
+        } catch (err) {
+          $("#output").text("❌ Error: " + err);
+        }
+      });
+
+      // Eliminar invoice con id=1
+      $("#btnDeleteInvoice").on("click", async () => {
+        try {
+          const msg = await removeById("invoices", 1);
+          $("#output").text(msg);
+        } catch (err) {
+          $("#output").text("❌ Error: " + err);
+        }
+      });
+
+      // Eliminar quotation con id=1
+      $("#btnDeleteQuotation").on("click", async () => {
+        try {
+          const msg = await removeById("quotations", 1);
+          $("#output").text(msg);
+        } catch (err) {
+          $("#output").text("❌ Error: " + err);
+        }
+      });
+
+      // Eliminar producto con id=3
+      $("#btnDeleteProduct").on("click", async () => {
+        try {
+          const msg = await removeById("inventory", 3);
+          $("#output").text(msg);
+        } catch (err) {
+          $("#output").text("❌ Error: " + err);
+        }
+      });
+
+    });
+  </script>
+
+</body>
+</html>

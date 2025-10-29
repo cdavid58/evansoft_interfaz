@@ -1,0 +1,566 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-header mb-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="title d-flex align-items-center">
+                <h4 class="mb-0 text-primary">
+                    <i class="bi bi-tags-fill me-2"></i>📦 Planes de Licencia y Paquetes
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container px-0 col-12">
+    <h4 class="mb-30 text-blue h4">Planes de Licencia Anuales</h4>
+    <div class="row">
+        <!-- Licencia Gratuita -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card shadow-sm border rounded-4 p-4 text-center bg-white">
+                <div class="pricing-icon mb-3">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="" style="width: 60px;">
+                </div>
+                <h4 class="price-title mb-2 fw-bold">Licencia Gratuita</h4>
+                <div class="pricing-price mb-3">
+                    <sup>$</sup>0<sub>/año</sub><br>
+                    <div class="text-muted" style="font-size: 50%;">($0/mes)</div>
+                </div>
+                <div class="text text-start mb-4 px-2" style="font-size: 0.95em; line-height: 1.6;">
+                    <ul class="list-unstyled mb-0">
+                        <li>✔️ 12 facturas</li>
+                        <li>✔️ 12 nóminas</li>
+                        <li>✔️ 12 documentos soporte</li>
+                        <li>👤 1 usuario</li>
+                        <li>🏢 1 sucursal</li>
+                        <li class="text-danger">❌ Funciones contables</li><br>
+                    </ul>
+                </div>
+                <div class="cta d-flex gap-2 justify-content-center" style="margin-bottom: 30px;">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-lg btn-rounded plans w-50 mr-2" id="1y">
+                        Anual
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Licencia Básica -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card shadow-sm border rounded-4 p-4 text-center bg-white">
+                <div class="pricing-icon mb-3">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="" style="width: 60px;">
+                </div>
+                <h4 class="price-title mb-2 fw-bold">Licencia Básica</h4>
+                <div class="pricing-price mb-3">
+                    <sup>$</sup>500.000<sub>/año</sub><br>
+                    <div class="text-muted" style="font-size: 50%;">($42.000/mes)</div>
+                </div>
+                <div class="text text-start mb-4 px-2" style="font-size: 0.95em; line-height: 1.6;">
+                    <ul class="list-unstyled mb-0">
+                        <li>✔️ 500 facturas</li>
+                        <li>✔️ 200 nóminas</li>
+                        <li>✔️ 300 documentos soporte</li>
+                        <li>👤 5 usuarios</li>
+                        <li>🏢 1 sucursal</li>
+                        <li class="text-danger">❌ Funciones contables</li><br>
+                    </ul>
+                </div>
+                <div class="cta d-flex gap-2 justify-content-center" style="margin-bottom: 30px;">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-lg btn-rounded plans w-50 mr-2 basico_anual" id="2y">
+                        Anual<br>
+                    </a>
+
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-lg btn-rounded plans w-70 btn_basic_men" id="2m">
+                        Mensual
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Licencia Avanzada -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card shadow-sm border rounded-4 p-3 text-center bg-white">
+                <div class="pricing-icon mb-3">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="" style="width: 60px;">
+                </div>
+                <h4 class="price-title mb-2 fw-bold">Licencia Avanzada</h4>
+                <div class="pricing-price mb-3">
+                    <sup>$</sup>1.200.000<sub>/año</sub><br>
+                    <span class="small text-muted" style="font-size: 50%;">($100.000/mes)</span>
+                </div>
+                <div class="text text-start mb-4 px-2" style="font-size: 0.95em; line-height: 1.6;">
+                    <ul class="list-unstyled mb-0">
+                        <li>✔️ 5.000 facturas</li>
+                        <li>✔️ 1.000 nóminas</li>
+                        <li>✔️ 3.000 documentos soporte</li>
+                        <li>👤 5 usuarios</li>
+                        <li>🏢 3 sucursales</li>
+                        <li class="text-success">✅ Funciones contables</li>
+                    </ul>
+                </div>
+               <div class="cta d-flex gap-2 justify-content-center" style="margin-bottom: 30px;">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-lg btn-rounded plans w-50 mr-2 btn_avance_anual" id="4y">
+                        Anual
+                    </a>
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-lg btn-rounded plans w-70 btn_avance_men" id="4m">
+                        Mensual
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Licencia Empresarial -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card shadow-sm border rounded-4 p-3 text-center bg-white">
+                <div class="pricing-icon mb-3">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="" style="width: 60px;">
+                </div>
+                <h4 class="price-title mb-2 fw-bold">Licencia Empresarial</h4>
+                <div class="pricing-price mb-3">
+                    <sup>$</sup>2.500.000<sub>/año</sub><br>
+                    <span class="small text-muted" style="font-size: 50%;">($208.000/mes)</span>
+                </div>
+                <div class="text text-start mb-4 px-2" style="font-size: 0.95em; line-height: 1.6;">
+                    <ul class="list-unstyled mb-0">
+                        <li>✔️ 2.000 facturas</li>
+                        <li>✔️ 2.000 nóminas</li>
+                        <li>✔️ 500 documentos RADIAN</li>
+                        <li>✔️ 2.000 documentos soporte</li>
+                        <li>👤 20 usuarios</li>
+                        <li>🏢 5 sucursales</li>
+                        <li class="text-success">✅ Funciones contables</li><br>
+                    </ul>
+                </div>
+                <div class="cta d-flex gap-2 justify-content-center" style="margin-bottom: 30px;">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-lg btn-rounded plans w-50 mr-2" id="4y">
+                        Anual
+                    </a>
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-lg btn-rounded plans w-70" id="4m">
+                        Mensual
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Licencia Ilimitada -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card shadow-sm border rounded-4 p-3 text-center bg-white">
+                <div class="pricing-icon mb-3">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="" style="width: 60px;">
+                </div>
+                <h4 class="price-title mb-2 fw-bold">Licencia Ilimitada</h4>
+                <div class="pricing-price mb-3">
+                    <sup>$</sup>6.000.000<sub>/año</sub><br>
+                    <span class="small text-muted" style="font-size: 50%;">($500.000/mes)</span>
+                </div>
+                <div class="text text-start mb-4 px-2" style="font-size: 0.95em; line-height: 1.6;">
+                    <ul class="list-unstyled mb-0">
+                        <li>✔️ Facturación ilimitada</li>
+                        <li>✔️ Nómina ilimitada</li>
+                        <li>✔️ RADIAN ilimitado</li>
+                        <li>✔️ Documentos soporte ilimitados</li>
+                        <li>✔️ Usuarios ilimitados</li>
+                        <li>✔️ Sucursales ilimitadas</li>
+                        <li class="text-success">✅ Funciones contables</li>
+                        <li class="text-success">✅ Certificado digital DIAN incluido</li>
+                    </ul>
+                </div>
+                <div class="cta d-flex gap-2 justify-content-center" style="margin-bottom: 30px;">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-lg btn-rounded plans w-50 mr-2" id="5y">
+                        Anual
+                    </a>
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-lg btn-rounded plans w-70" id="5m">
+                        Mensual
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Licencia Ultra Premium -->
+        <!-- <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card shadow-sm border rounded-4 p-3 text-center bg-white">
+                <div class="pricing-icon mb-3">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="" style="width: 60px;">
+                </div>
+                <h4 class="price-title mb-2 fw-bold">Licencia Ultra Premium</h4>
+                <div class="pricing-price mb-3">
+                    <sup>$</sup>6.000.000<sub>/año</sub><br>
+                    <span class="small text-muted" style="font-size: 50%;">($500.000/mes)</span>
+                </div>
+                <div class="text text-start mb-4 px-2" style="font-size: 0.95em; line-height: 1.6;">
+                    <ul class="list-unstyled mb-0">
+                        <li>✔️ Facturación ilimitada</li>
+                        <li>✔️ Nómina ilimitada</li>
+                        <li>✔️ RADIAN ilimitado</li>
+                        <li>✔️ Documentos soporte ilimitados</li>
+                        <li>✔️ Usuarios ilimitados</li>
+                        <li>✔️ Sucursales ilimitadas</li>
+                        <li class="text-success">✅ Funciones contables</li>
+                        <li class="text-success">✅ Certificado digital DIAN incluido</li>
+                    </ul>
+                </div>
+                <div class="cta d-flex gap-2 justify-content-center" style="margin-bottom: 30px;">
+                    <a href="javascript:void(0);" class="btn btn-primary btn-lg btn-rounded plans w-50 mr-2" id="5y">
+                        Anual
+                    </a>
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-lg btn-rounded plans w-70" id="5m">
+                        Mensual
+                    </a>
+
+                </div>
+            </div>
+        </div> -->
+
+    </div>
+</div>
+
+<!-- Licencia Básica -->
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_s-xclick" />
+      <input type="hidden" name="hosted_button_id" value="4FAG2R9G9BW4L" />
+      <input type="hidden" name="currency_code" value="USD" />
+      <input type="image" src="https://www.paypalobjects.com/es_XC/i/btn/btn_cart_LG.gif" id="basico_anual" border="0" name="submit" title="PayPal es una forma segura y fácil de pagar en línea." alt="Agregar al carrito" />
+    </form>
+
+
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_s-xclick" />
+      <input type="hidden" name="hosted_button_id" value="Q8F3LJVE2TLTS" />
+      <input type="hidden" name="currency_code" value="USD" />
+      <input type="image" src="https://www.paypalobjects.com/es_XC/i/btn/btn_cart_LG.gif" id="btn_basic_men" border="0" name="submit" title="PayPal es una forma segura y fácil de pagar en línea." alt="Agregar al carrito" />
+    </form>
+<!-- End Básica -->
+
+
+<!-- Licencia Avanzada -->
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_s-xclick" />
+      <input type="hidden" name="hosted_button_id" value="HRMWUB3Z73WJJ" />
+      <input type="hidden" name="currency_code" value="USD" />
+      <input type="image" src="https://www.paypalobjects.com/es_XC/i/btn/btn_cart_LG.gif" id="btn_avance_men" border="0" name="submit" title="PayPal es una forma segura y fácil de pagar en línea." alt="Agregar al carrito" />
+    </form>
+
+
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_s-xclick" />
+      <input type="hidden" name="hosted_button_id" value="Q8F3LJVE2TLTS" />
+      <input type="hidden" name="currency_code" value="USD" />
+      <input type="image" src="https://www.paypalobjects.com/es_XC/i/btn/btn_cart_LG.gif" id="btn_avance_men" border="0" name="submit" title="PayPal es una forma segura y fácil de pagar en línea." alt="Agregar al carrito" />
+    </form>
+<!-- End Avanzada -->
+
+
+<!-- Licencia Empresarial -->
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_s-xclick" />
+      <input type="hidden" name="hosted_button_id" value="4FAG2R9G9BW4L" />
+      <input type="hidden" name="currency_code" value="USD" />
+      <input type="image" src="https://www.paypalobjects.com/es_XC/i/btn/btn_cart_LG.gif" id="btn_empresarial_anual" border="0" name="submit" title="PayPal es una forma segura y fácil de pagar en línea." alt="Agregar al carrito" />
+    </form>
+
+
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_s-xclick" />
+      <input type="hidden" name="hosted_button_id" value="Q8F3LJVE2TLTS" />
+      <input type="hidden" name="currency_code" value="USD" />
+      <input type="image" src="https://www.paypalobjects.com/es_XC/i/btn/btn_cart_LG.gif" id="btn_empresarial_men" border="0" name="submit" title="PayPal es una forma segura y fácil de pagar en línea." alt="Agregar al carrito" />
+    </form>
+<!-- End Empresarial -->
+
+
+
+
+<div class="container px-0">
+    <h4 class="mb-30 text-blue h4">Paquetes Extras</h4>
+    <div class="row">
+        <!-- Paquete 100 Facturas -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card mt-30 mb-30">
+                <div class="pricing-icon">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+                </div>
+                <div class="price-title">Certificado Digital</div>
+                <div class="pricing-price">
+                    <sup>$</sup>650.000<sub>/año</sub>
+                </div>
+                <div class="text">
+				    Certificado digital con vigencia de 1 año para firmar electrónicamente tus documentos ante la DIAN.<br>
+		            Obligatorio para emitir documentos electrónicos.
+				</div>
+                <div class="cta">
+                    <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-30">
+		    <div class="card-box pricing-card mt-30 mb-30">
+		        <div class="pricing-icon">
+		            <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+		        </div>
+		        <div class="price-title">Certificado Digital</div>
+		        <div class="pricing-price">
+		            <sup>$</sup>1.100.000<sub>/2 años</sub>
+		        </div>
+		        <div class="text">
+		            Certificado digital con vigencia de 2 años para firmar electrónicamente tus documentos ante la DIAN.<br>
+		            Obligatorio para emitir documentos electrónicos.
+		        </div>
+		        <div class="cta">
+		            <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+		        </div>
+		    </div>
+		</div>
+
+
+        <!-- Paquete 100 Facturas -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card mt-30 mb-30">
+                <div class="pricing-icon">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+                </div>
+                <div class="price-title">100 Facturas Adicionales</div>
+                <div class="pricing-price">
+                    <sup>$</sup>19.900
+                </div>
+                <div class="text">
+                    Acumula 100 facturas más<br>
+                    No expiran mientras tengas tu licencia activa
+                    <br><br><br><br>
+                </div>
+                <div class="cta">
+                    <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuario Adicional -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card mt-30 mb-30">
+                <div class="pricing-icon">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+                </div>
+                <div class="price-title">Usuario Adicional</div>
+                <div class="pricing-price">
+                    <sup>$</sup>29.900<sub>/año</sub>
+                </div>
+                <div class="text">
+                    Añade un usuario extra a tu cuenta<br>
+                    Ideal para empresas en crecimiento
+                </div>
+                <div class="cta">
+                    <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sucursal Adicional -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card mt-30 mb-30">
+                <div class="pricing-icon">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+                </div>
+                <div class="price-title">Sucursal Adicional</div>
+                <div class="pricing-price">
+                    <sup>$</sup>39.900<sub>/año</sub>
+                </div>
+                <div class="text">
+                    Agrega una nueva sede<br>
+                    Para manejar múltiples puntos de venta
+                </div>
+                <div class="cta">
+                    <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nómina Adicional -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card mt-30 mb-30">
+                <div class="pricing-icon">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+                </div>
+                <div class="price-title">50 Nóminas Adicionales</div>
+                <div class="pricing-price">
+                    <sup>$</sup>24.900
+                </div>
+                <div class="text">
+                    Para trabajadores adicionales<br>
+                    Válido por ciclo anual de licencia
+                </div>
+                <div class="cta">
+                    <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentos soporte -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card mt-30 mb-30">
+                <div class="pricing-icon">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+                </div>
+                <div class="price-title">100 Documentos Soporte</div>
+                <div class="pricing-price">
+                    <sup>$</sup>17.900
+                </div>
+                <div class="text">
+                    Registra compras con no obligados<br>
+                    Complementa tus reportes de gastos
+                </div>
+                <div class="cta">
+                    <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentos RADIAN -->
+        <div class="col-md-4 mb-30">
+            <div class="card-box pricing-card mt-30 mb-30">
+                <div class="pricing-icon">
+                    <img src="{% static 'vendors/images/icon-Cash.png' %}" alt="">
+                </div>
+                <div class="price-title">50 Documentos RADIAN</div>
+                <div class="pricing-price">
+                    <sup>$</sup>34.900
+                </div>
+                <div class="text">
+                    Habilita validación RADIAN DIAN<br>
+                    Ideal para factoring o proveedores grandes
+                </div>
+                <div class="cta">
+                    <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Espacio extra en la nube -->
+        <div class="col-md-4 mb-30">
+                <div class="card-box pricing-card mt-30 mb-30">
+                    <div class="pricing-icon">
+                        <img src="{% static 'vendors/images/icon-support.png' %}" alt="">
+                    </div>
+                    <div class="price-title">Soporte Técnico</div>
+                    <div class="pricing-price">
+                        <sup>$</sup>45.000<sub>/hora</sub>
+                    </div>
+                    <div class="text">
+                        Atención personalizada para resolver tus problemas.<br>
+                        Vía WhatsApp, correo o llamada.
+                    </div>
+                    <div class="cta">
+                        <a href="#" class="btn btn-primary btn-rounded btn-lg">Agregar</a>
+                    </div>
+                </div>
+            </div>
+            
+    </div>
+</div>
+
+
+
+{% endblock %}
+{% block script %}
+    <script>
+        
+        $(document).ready(function(){
+            // $(document).on('click', '.plans', function(){
+            //     let id = this.id;
+            //     $(".text_send_email").text('Espere mientras actualizamos la licencia.');
+            //     var modalLoader = new bootstrap.Modal(document.getElementById('loader1'), {
+            //       keyboard: false,
+            //       backdrop: 'static'
+            //     });
+            //     modalLoader.show();
+                
+            //     let match = id.match(/^(\d+)([a-zA-Z]+)$/);
+            //     if (match) {
+            //         let numero = match[1]; // "5"
+            //         let letra = match[2];  // "y"
+                    
+            //         let data = {
+            //             type_plans: parseInt(numero),
+            //             year: (letra === 'y'),
+            //             pk_branch: {{ request.session.branch_id|safe }}
+            //         };
+
+            //         $.ajax({
+            //             url: "{% url 'Create_Or_Update_License' %}",
+            //             data: JSON.stringify(data),
+            //             type: 'POST',
+            //             dataType: 'json',
+            //             contentType: 'application/json',
+            //             headers: {
+            //                 'X-Requested-With': 'XMLHttpRequest',
+            //                 'X-CSRFToken': '{{ csrf_token }}'
+            //             },
+            //             success: function(response){
+            //                 try {
+            //                     if (response.result) {
+            //                         Swal.fire({
+            //                             icon: 'success',
+            //                             title: 'Licencia actualizada correctamente.',
+            //                             text: response.message || 'Se guardó la nueva resolución correctamente.',
+            //                             confirmButtonText: 'OK'
+            //                         }).then((result) => {
+            //                             if (result.isConfirmed) {
+            //                                 location.reload(true);
+            //                             }
+            //                         });
+            //                     } else {
+            //                         Swal.fire({
+            //                             icon: 'error',
+            //                             title: 'Oops... Algo salió mal.',
+            //                             text: response.message,
+            //                             confirmButtonText: 'OK'
+            //                         }).then((result) => {
+            //                             if (result.isConfirmed) {
+            //                                 location.reload(true);
+            //                             }
+            //                         });
+            //                     }
+            //                 } catch (e) {
+            //                     console.error("Error inesperado en success:", e);
+            //                 } finally {
+            //                 }
+            //             },
+            //             error: function(xhr, status, error) {
+            //                 console.error("Error en AJAX:", error);
+            //                 Swal.fire({
+            //                     icon: 'error',
+            //                     title: 'Oops... Algo salió mal.',
+            //                     text: "Hubo un error al intentar actualizar la licencia.",
+            //                     confirmButtonText: 'OK'
+            //                 }).then((result) => {
+            //                     if (result.isConfirmed) {
+            //                         location.reload(true);
+            //                     }
+            //                 });
+            //             }
+            //         });
+            //     }
+            // });
+
+            $(".basico_anual").click(function(){
+                $("#btn_basic_anual").click()
+            })
+
+            $(".btn_basic_men").click(function(){
+                $("#btn_basic_men").click()
+            })
+
+            $(".basico_anual").click(function(){
+                $("#btn_avance_anual").click()
+            })
+
+            $(".btn_avance_men").click(function(){
+                $("#btn_basic_men").click()
+            })
+        });
+
+    </script>
+
+{% endblock %}

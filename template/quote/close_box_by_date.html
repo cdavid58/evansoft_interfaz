@@ -1,0 +1,141 @@
+{% load format_filters %}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+
+<style>
+    @media print {
+        #footer {
+            page-break-inside: avoid;
+            margin-top: 10px;
+        }
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: Roboto, sans-serif;
+    }
+
+    html, body {
+        width: 100%;
+        vertical-align: baseline;
+    }
+
+    body {
+        line-height: 1;
+        font-size: 12px;
+    }
+
+    #container {
+        width: 98%;
+        margin: 0px;
+        padding: 1px;
+        text-align: center !important;
+    }
+
+    #header {
+        text-align: center;
+    }
+
+    .table {
+        width: 100%;
+        font-size: 14px;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        border: 1px solid #ccc;
+        padding: 3px;
+        text-align: left;
+    }
+
+    .table th {
+        font-weight: bold;
+    }
+
+    .table td {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-right {
+        text-align: right !important;
+    }
+</style>
+
+<body>
+    <div id="container">
+        <div id="header">
+            <p style="font-weight: bold; font-size: 16px;">CIERRE DE CAJA</p>
+            <br>
+            <p style="font-weight: bold; font-size: 13px;">Empleado: {{ result.employee }}</p>
+            <p style="font-weight: bold; font-size: 13px;">Sucursal: {{ result.branch }}</p>
+            <p style="font-weight: bold; font-size: 13px;">Fecha Desde: {% if date_from %} {{ date_from }}{% else %}N/A{% endif %}</p>
+            <p style="font-weight: bold; font-size: 13px;">Fecha Hasta: {% if date_to %} {{ date_to }}{% else %}N/A{% endif %}</p>
+        </div><br><br>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center" style="text-align: center !important;">Descripción</th>
+                    <th class="text-center" style="text-align: center !important;">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: left;">Saldo de Apertura</td>
+                    <td class="text-right">{{ result.total_opening_balance|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Total Ventas</td>
+                    <td class="text-right">{{ result.total_sales|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Total Reembolsos</td>
+                    <td class="text-right">{{ result.total_refunds|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Total Anulado</td>
+                    <td class="text-right">{{ result.total_annulled|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Total en Efectivo</td>
+                    <td class="text-right">{{ result.total_cash|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Total en Tarjeta</td>
+                    <td class="text-right">{{ result.total_card|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Otros Pagos</td>
+                    <td class="text-right">{{ result.total_other_payments|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Créditos</td>
+                    <td class="text-right">{{ result.total_credits|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Total Domicilios</td>
+                    <td class="text-right">{{ result.total_domicilios|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">Total Facturas</td>
+                    <td class="text-right">{{ result.total_invoices|miles }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left; font-weight: bold;">Saldo Final</td>
+                    <td class="text-right" style="font-weight: bold;">{{ result.net_sales|miles }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <br>
+        <div id="footer">
+            <hr style="margin-bottom: 2px;">
+            <p style="font-size: 12px; text-align:center;">Reporte generado por Evansoft</p>
+        </div>
+    </div>
+</body>

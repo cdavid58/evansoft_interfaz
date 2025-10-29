@@ -1,0 +1,292 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	/* Resalta el label si el campo está vacío */
+	.form-group label {
+	    font-weight: 600;
+	    transition: color 0.3s ease-in-out;
+	}
+
+	.form-group input:focus {
+	    border-color: #007bff !important;
+	    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+	}
+
+	/* Campo obligatorio vacío = borde rojo */
+	.form-group .required:invalid {
+	    border-color: red !important;
+	}
+
+	/* Cambia el color del label si el campo está vacío */
+	.form-group .required:invalid + label {
+	    color: red;
+	}
+
+	.error-message {
+	    display: none;
+	    font-size: 0.85rem;
+	    margin-top: 5px;
+	}
+
+	.is-invalid {
+	    border-color: red !important;
+	}
+
+	.is-invalid + .error-message {
+	    display: block;
+	}
+
+
+</style>
+
+
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>🔄 Vamos a actualizar un cliente!</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<a class="btn btn-primary create_lient" href="{% url 'List_Customer' %}" role="button">Lista de clientes</a>
+	</div>
+</div>
+
+<form class="form_data">
+	<div class="row">
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="code">Documento de Identificación</label>
+	            <input type="number" id="code" name="identification_number" class="form-control required" value="{{customer.identification_number}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-4 col-sm-12">
+	        <div class="form-group">
+	            <label for="name">Razón Social</label>
+	            <input type="text" id="name" name="name" class="form-control required" value="{{customer.name}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="phone">Teléfono</label>
+	            <input type="tel" id="phone" name="phone" class="form-control required" value="{{customer.phone}}"
+	                pattern="^\d{7,10}$" maxlength="10" minlength="7">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-4 col-sm-12">
+	        <div class="form-group">
+	            <label for="address">Dirección</label>
+	            <input type="text" id="address" name="address" class="form-control required" value="{{customer.address}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-4 col-sm-12">
+	        <div class="form-group">
+	            <label for="email">Correo Electronico</label>
+	            <input type="text" id="email" name="email" class="form-control required" value="{{customer.email}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+		<div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="merchant_registration">Registro Mercantil</label>
+	            <input type="text" id="merchant_registration" name="merchant_registration" class="form-control" value="{{customer.merchant_registration}}">
+	        </div>
+	    </div>
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="type_document_identification">Tipo de Documento</label>
+		        <select id="type_document_identification" name="type_document_identification" class="custom-select required">
+		            <option value="{{customer.type_document_identification}}">{{customer.type_document_identification_name}}</option>
+		            {% for i in type_document_identification %}
+		            	{% if i.code != customer.type_document_identification %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="type_organization">Tipo de Organización</label>
+		        <select id="type_organization" name="type_organization" class="custom-select required">
+		            <option value="{{customer.type_organization}}">{{customer.type_organization_name}}</option>
+		            {% for i in type_organization %}
+		            	{% if i.code != customer.type_organization %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="type_regime">Tipo de Régimen</label>
+		        <select id="type_regime" name="type_regime" class="custom-select required">
+		            <option value="{{customer.type_regime}}">{{customer.type_regime_name}}</option>
+		            {% for i in type_regime %}
+		            	{% if i.code != customer.type_regime %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-4 col-12">
+		    <div class="form-group">
+		        <label for="type_liability">Tipo de Responsabilidad</label>
+		        <select id="type_liability" name="type_liability" class="custom-select required">
+		            <option value="{{customer.type_liability}}">{{customer.type_liability_name}}</option>
+		            {% for i in type_liability %}
+		                {% if i.code != customer.type_liability %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="municipality" class="col">Municipio</label>
+		        <select id="municipality" name="municipality" class="custom-select2 required col">
+		            <option value="{{customer.municipality}}">{{customer.municipality_name}}</option>
+		            {% for i in municipality %}
+		                {% if i.code != customer.municipality %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+	</div>
+	<div class="row">
+		<div class="col-md-2 col-sm-12">
+			<a class="btn btn-primary save_customer" href="javascript:void(0);" role="button">Actualiza Cliente</a>
+		</div>
+	</div>
+</form>
+							
+
+{% endblock %}
+{% block script %}
+
+	<script>
+		$(document).ready(function () {
+		    let phoneInput = $("input[name='phone']");
+
+		    // Validación de teléfono
+		    phoneInput.on("input", function () {
+		        let value = $(this).val().replace(/\D/g, ""); // Solo números
+		        $(this).val(value);
+		    });
+
+		    phoneInput.on("blur", function () {
+		        let phoneRegex = /^(?:\d{7}|\d{10})$/; // Solo 7 o 10 dígitos permitidos
+		        let isValid = phoneRegex.test($(this).val());
+
+		        $(this).next(".phone-error").remove(); // Elimina mensaje anterior
+		        if (!isValid) {
+		            $(this).addClass("is-invalid");
+		            $(this).after('<div class="text-danger phone-error" style="font-size: 12px;">⚠️ Ingrese un número de 7 o 10 dígitos</div>');
+		        } else {
+		            $(this).removeClass("is-invalid");
+		        }
+		    });
+
+		    // Validación de inputs y selects
+		    $(".required").on("blur change", function () {
+		        let input = $(this);
+		        let errorMessage = input.next(".error-message");
+
+		        if (!input.val().trim()) {
+		            input.addClass("is-invalid");
+		            errorMessage.text("⚠️ Este campo es obligatorio").show();
+		        } else {
+		            input.removeClass("is-invalid");
+		            errorMessage.hide();
+		        }
+		    });
+
+
+		    $(".save_customer").click(function(){
+		        let hasEmptyField = false;
+		        let selectedBranches = ["{{request.session.company_id}}"];
+		        console.log("📌 Sucursales seleccionadas:", selectedBranches);
+
+		        let form = $(".form_data")[0];
+		        let formData = $(".form_data").serializeArray();
+		        let baseData = {};
+
+		        $.each(formData, function(index, field){
+		        	console.log(field.name)
+		            if (!field.value.trim() & field.name != "merchant_registration") {
+		                hasEmptyField = true;
+		                console.warn(`⚠ El campo '${field.name}' está vacío.`);
+		            }
+		            baseData[field.name] = field.value.trim();
+		        });
+
+		        if (hasEmptyField) {
+		            Swal.fire({
+		                icon: "error",
+		                title: "Campos vacíos",
+		                text: "Todos los campos son obligatorios. Por favor, complétalos antes de continuar.",
+		                confirmButtonText: "OK"
+		            });
+		            return;
+		        }
+
+		        let productsArray = [];
+		        selectedBranches.forEach(branchId => {
+		            let productData = { ...baseData, branch_id: branchId };
+		            productsArray.push(productData);
+		        });
+
+		        console.log("📌 Datos finales:", productsArray);
+
+		        $.ajax({
+		            url: "{% url 'Save_Customer' %}",
+		            type: "POST",
+		            contentType: "application/json",
+		            data: JSON.stringify(productsArray),
+		            headers: {
+		                "X-CSRFToken": "{{ csrf_token }}"
+		            },
+		            success: function(response){
+		                console.log("✅ Respuesta del servidor:", response);
+		                console.log(response.result);
+		                
+		                if(response.result){
+		                    Notification("success", "✅Producto Creado con éxito.", response.message, "OK");
+		                } else {
+		                    Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+		                }
+		            },
+		            error: function(xhr, status, error){
+		                console.error("🚨 Error en la petición:", status, error);
+		                Notification("error", "🚨 Error en la petición", status, "OK");
+		            }
+		        });
+		    });
+		});
+	</script>
+{% endblock %}
