@@ -1,0 +1,62 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	.dataTables_paginate {
+	    overflow-x: auto;
+	    white-space: nowrap;
+	    display: flex;
+	    justify-content: center;
+	}
+
+	.dataTables_paginate .pagination {
+	    flex-wrap: nowrap;
+	}
+
+	@media screen and (max-width: 400px) {
+	    .dataTables_paginate {
+	        font-size: 12px;
+	    }
+	}
+</style>
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>Productos más vendidos</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<select class="custom-select col-6 branch">
+			<option selected="" value="0">Elija Sucursal</option>
+			{% for i in list_branch %}
+				<option value="{{i.id}}">{{i.business_name}}</option>
+			{% endfor %}
+		</select>
+	</div>
+</div>
+
+<div class="card-box mb-30 p-2">
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="data-table table table-stripe hover nowrap" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th class="table-plus datatable-nosort">Código</th>
+		                <th>Producto</th>
+		                <th>Total Vendidos</th>
+		            </tr>
+		        </thead>
+		        <tbody></tbody>
+		    </table>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+	$(document).ready(function () {
+		
+
+	});
+</script>
+{% endblock %}

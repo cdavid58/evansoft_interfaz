@@ -1,0 +1,8 @@
+URL: https://api.evansoft.co/inventory/Finalizado/
+Method: POST
+Payload: {"employee_id": 41}
+Status: 200
+Response: {
+  "result": true,
+  "message": "Success"
+}

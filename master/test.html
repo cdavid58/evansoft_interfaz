@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice Offline DB</title>
+  <script src="db.js"></script>
+  <script src="insert.js"></script>
+  <script src="select.js"></script>
+  <script src="delete.js"></script>
+</head>
+<body>
+  <h1>Demo Offline DB con IndexedDB</h1>
+
+  <button id="btnInsert">Insertar Producto</button>
+  <button id="btnSelect">Consultar Productos</button>
+  <button id="btnDelete">Eliminar Producto con id=1</button>
+  <button id="btnClear">Borrar TODOS los Productos</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    // Esperar que abra la base
+    openDatabase().then(() => {
+      document.getElementById("output").textContent = "✅ DB abierta y tablas listas";
+    });
+
+    // Insertar
+    document.getElementById("btnInsert").addEventListener("click", () => {
+      insert("products", { id: Date.now(), name: "Producto Demo", price: 100 })
+        .then(() => log("✅ Insertado un producto"))
+        .catch(err => log("❌ Error insert: " + err));
+    });
+
+    // Select
+    document.getElementById("btnSelect").addEventListener("click", () => {
+      select("products").then(results => log("📦 Productos:\n" + JSON.stringify(results, null, 2)));
+    });
+
+    // Delete con filtro
+    document.getElementById("btnDelete").addEventListener("click", () => {
+      remove("products", { id: 1 })
+        .then(count => log("🗑 Eliminados: " + count))
+        .catch(err => log("❌ Error delete: " + err));
+    });
+
+    // Clear todos
+    document.getElementById("btnClear").addEventListener("click", () => {
+      remove("products").then(msg => log(msg));
+    });
+
+    // Helper log
+    function log(msg) {
+      document.getElementById("output").textContent = msg;
+    }
+  </script>
+</body>
+</html>

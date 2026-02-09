@@ -1,0 +1,131 @@
+{% extends '../base.html' %}
+{% block content %}
+
+<style>
+	.subtitle{
+		font-size: 20px;
+	}
+</style>
+
+<div class="row">
+	<div class="col-auto">
+		<div class="title">
+			<h4 class=" text-danger">Novedad N° <span class="number_invoice"></span></h4>
+		</div>
+	</div>
+</div>
+
+<div class="row mt-3">
+	<div class="col-md-5 col-sm-12">
+		<div class="form-group">
+			<label>Descripción</label>
+			<input type="text" class="form-control product" autofocus>
+		</div>
+	</div>
+	<div class="col-md-1 col-sm-12">
+		<div class="form-group">
+			<label>Tipo de Cuenta</label>
+			<select class="form-control">
+				<option value="">Selección</option>
+				<option value="">Compra</option>
+			</select>
+		</div>
+	</div>
+	<div class="col-md-1 col-sm-12">
+		<div class="form-group">
+			<label>Cantidad</label>
+			<input type="number" class="form-control quantity">
+		</div>
+	</div>
+	<div class="col-md-1 col-sm-12">
+		<div class="form-group">
+			<label>Precio</label>
+			<input type="number" class="form-control type_price">
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Total</label>
+			<input type="text" disabled style="text-align: right;" class="form-control total_invoice">
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<table class="table table-bordered">
+	  <thead>
+	    <tr>
+	      <th>Código</th>
+	      <th>Descripción</th>
+	      <th>Cantidad</th>
+	      <th>Precio</th>
+	      <th>Neto</th>
+	    </tr>
+	  </thead>
+	  <tbody class="row_invoice"></tbody>
+	</table>
+</div>
+
+
+<style>
+    .obser {
+        height: auto;
+        min-height: 50px;
+        max-height: 100px;
+        overflow-y: auto;
+        resize: none;
+    }
+
+    .contenedor {
+        align-items: flex-start !important;
+    }
+
+    .observa {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 100%;
+    }
+</style>
+
+
+<div class="row contenedor">
+	<div class="col-md-6 col-sm-12">
+		<div class="form-group observa">
+			<label>Observaciones</label>
+			<textarea class="form-control obser note" placeholder="Escriba una nota" rows="2"></textarea>
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-12 ml-auto">
+		<table class="table table-bordered">
+		  <tbody class="row_totales">
+		    <tr>
+		      <th class="col-8">Subtotal:</th>
+		      <th class="col-4 text-right">0</th>
+		    </tr>
+		    <tr>
+		      <th class="col-8">Impuestos:</th>
+		      <th class="col-4 text-right">0</th>
+		    </tr>
+		    <tr>
+		      <th class="col-8">ICO:</th>
+		      <th class="col-4 text-right">0</th>
+		    </tr>
+		    <tr>
+		      <th class="col-8">Descuentos:</th>
+		      <th class="col-4 text-right">0</th>
+		    </tr>
+		    <tr>
+		      <th class="col-8">Total:</th>
+		      <th class="col-4 text-right">0</th>
+		    </tr>
+		  </tbody>
+		</table>
+	</div>
+</div>
+
+
+{% endblock %}
+{% block script %}
+
+{% endblock %}

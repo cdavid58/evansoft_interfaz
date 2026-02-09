@@ -1,0 +1,303 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	/* Resalta el label si el campo está vacío */
+	.form-group label {
+	    font-weight: 600;
+	    transition: color 0.3s ease-in-out;
+	}
+
+	.form-group input:focus {
+	    border-color: #007bff !important;
+	    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+	}
+
+	/* Campo obligatorio vacío = borde rojo */
+	.form-group .required:invalid {
+	    border-color: red !important;
+	}
+
+	/* Cambia el color del label si el campo está vacío */
+	.form-group .required:invalid + label {
+	    color: red;
+	}
+
+	.error-message {
+	    display: none;
+	    font-size: 0.85rem;
+	    margin-top: 5px;
+	}
+
+	.is-invalid {
+	    border-color: red !important;
+	}
+
+	.is-invalid + .error-message {
+	    display: block;
+	}
+
+
+</style>
+
+
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>🔄 Vamos a actualizar un empleado!</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<a class="btn btn-primary create_lient" href="{% url 'List_Employee' %}" role="button">Lista de empleados</a>
+	</div>
+</div>
+
+<form class="form_data">
+	<div class="row">
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="identification_number">Documento de Identificación</label>
+	            <input type="number" id="identification_number" name="identification_number" class="form-control required" value="{{employee.identification_number}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="first_name">Primer Nombre</label>
+	            <input type="text" id="first_name" name="first_name" class="form-control" value="{{employee.first_name}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="name">Segundo Nombre</label>
+	            <input type="text" id="name" name="middle_name" class="form-control required" value="{% if employee.middle_name %}{{employee.middle_name}}{% else %}NO TIENE{% endif %}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="name">Primer Apellido</label>
+	            <input type="text" id="name" name="surname" class="form-control required" value="{{employee.surname}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="name">Segundo Apellido</label>
+	            <input type="text" id="name" name="second_surname" class="form-control required" value="{% if employee.second_surname %}{{employee.second_surname}}{% else %}NO TIENE{% endif %}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="phone">Teléfono</label>
+	            <input type="tel" id="phone" name="phone" class="form-control required" value="{{employee.phone}}"
+	                pattern="^\d{7,10}$" maxlength="10" minlength="7">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-3 col-sm-12">
+	        <div class="form-group">
+	            <label for="address">Dirección</label>
+	            <input type="text" id="address" name="address" class="form-control required" value="{{employee.address}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+	    <div class="col-md-3 col-sm-12">
+	        <div class="form-group">
+	            <label for="email">Correo Electronico</label>
+	            <input type="text" id="email" name="email" class="form-control required" value="{{employee.email}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="email">Salario</label>
+	            <input type="text" id="email" name="salary" class="form-control required" value="{{employee.salary}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+	    <div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="payroll_type_document_identification">Tipo de Documento</label>
+		        <select id="payroll_type_document_identification" name="payroll_type_document_identification_id" class="custom-select required">
+		            <option value="{{employee.payroll_type_document_identification}}">{{employee.payroll_type_document_identification_name}}</option>
+		            {% for i in type_document_identification %}
+		            	{% if i.code != employee.payroll_type_document_identification %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+	</div>
+
+
+	<div class="row">
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="type_worker">Tipo de Trabajador</label>
+		        <select id="type_worker" name="type_worker_id" class="custom-select required">
+		            <option value="{{employee.type_worker}}">{{employee.type_worker_name}}</option>
+		            {% for i in type_worker %}
+		            	{% if i.code != employee.type_worker %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="sub_type_worker">Sub-Tipo de Trabajador</label>
+		        <select id="sub_type_worker" name="sub_type_worker_id" class="custom-select required">
+		            <option value="{{employee.sub_type_worker}}">{{employee.sub_type_worker_name}}</option>
+		            {% for i in sub_type_worker %}
+		            	{% if i.code != employee.sub_type_worker %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="municipality" class="col">Municipio</label>
+		        <select id="municipality" name="municipality_id" class="custom-select2 required col">
+		            <option value="{{employee.municipality}}">{{employee.municipality_name}}</option>
+		            {% for i in municipality %}
+		                {% if i.code != employee.municipality %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>		
+		
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="type_contract">Tipo de Contrato</label>
+		        <select id="type_contract" name="type_contract_id" class="custom-select required">
+		            <option value="{{employee.type_contract}}">{{employee.type_contract_name}}</option>
+		            {% for i in type_contract %}
+		            	{% if i.code != employee.type_contract %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+				<label>Elije la sucursal</label>
+				<select class="custom-select branch_change" name="branch_change" style="width: 100%;">
+					<option value="{{employee.branch}}">{{employee.branch_name}}</option>
+					{% for i in list_branch %}
+						{% if i.id != employee.branch %}
+							<option value="{{i.id}}">{{i.business_name}}</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		
+
+		<div class="col-md-3 col-12">
+		    <div class="form-group">
+		        <label for="role">Tipo de ROL</label>
+		        <select id="role" name="role" class="custom-select required">
+		            <option value="{{employee.role}}">{{employee.role_name}}</option>
+		            {% for i in roles %}
+		            	{% if i.code != employee.role %}
+		                	<option value="{{i.code}}">{{i.name}}</option>
+		                {% endif %}
+		            {% endfor %}
+		        </select>
+		        <small class="error-message text-danger"></small>
+		    </div>
+		</div>
+
+		<div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="user">Usuario</label>
+	            <input type="text" id="user" name="user" class="form-control" value="{{employee.user|title}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+
+	    <div class="col-md-2 col-sm-12">
+	        <div class="form-group">
+	            <label for="psswd">Contraseña</label>
+	            <input type="text" id="psswd" name="psswd" class="form-control" value="{{employee.psswd}}">
+	            <small class="error-message text-danger"></small>
+	        </div>
+	    </div>
+	</div>
+	<div class="row">
+		<div class="col-12">
+			<a class="btn btn-primary save_employee" href="javascript:void(0);" role="button">Actualizar Empleado</a>
+		</div>
+	</div>
+</form>
+							
+
+{% endblock %}
+{% block script %}
+
+	<script>
+		$(document).ready(function () {
+			$(".branch_change").change(function(){
+				console.log($(".branch_change").val())
+			})
+
+		    $(".save_employee").click(function () {
+			    let formArray = $(".form_data").serializeArray();
+			    formArray.push({ name: "branch_id", value: "{{ employee.branch }}"});
+			    formArray.push({ name: "employee_id", value: "{{ employee.id }}"});
+			    console.log("📝 Formulario serializado con branch_id:", formArray);
+			    $.ajax({
+			        url: "{% url 'Save_Employee' %}",
+			        type: "POST",
+			        data: formArray,
+			        headers: {
+			            "X-CSRFToken": "{{ csrf_token }}"
+			        },
+			        success: function (response) {
+			            console.log("✅ Respuesta del servidor:", response);
+			            if (response.result) {
+			                Swal.fire({
+								icon: 'success',
+								title: "Empleado actualizado",
+								text: "El empleado se actualizó correctamente.",
+								confirmButtonText: 'OK'
+							});
+			            } else {
+			                Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+			            }
+			        },
+			        error: function (xhr, status, error) {
+			            console.error("🚨 Error en la petición:", status, error);
+			        }
+			    });
+			});
+
+		});
+
+	</script>
+{% endblock %}

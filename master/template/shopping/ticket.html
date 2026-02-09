@@ -1,0 +1,291 @@
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+
+<style>
+
+    @media print {
+        #footer {
+            page-break-inside: avoid;
+            margin-top: 10px;
+        }
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: Roboto, sans-serif;
+    }
+
+    html, body {
+        width: 100%;
+        vertical-align: baseline;
+    }
+
+    body {
+        line-height: 1;
+        font-size: 12px;
+    }
+
+    #container {
+        width: 95%;
+        margin: 0px;
+        padding: 1px;
+        text-align: center !important;
+    }
+
+    #header {
+        text-align: center;
+    }
+
+    #header > #reference p {
+        margin: 2px 0;
+        font-size: 15px;
+    }
+
+    .table {
+        width: 100%;
+        font-size: 14px;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        border: 1px solid #ccc;
+        padding: 3px;
+        text-align: left;
+    }
+
+    .table th {
+        font-weight: bold;
+    }
+
+    .table td {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .vertical-align-top {
+        vertical-align: top;
+    }
+
+    .text-right {
+        text-align: right !important;
+    }
+
+    #empresa-header {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    #empresa-header1 {
+        text-align: center;
+        font-size: 15px;
+    }
+
+    .table tr:nth-child(odd) td {
+        background-color: rgb(248, 249, 250);
+    }
+</style>
+
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="reference">
+                <!-- <p>DOCUMENTO EQUIVALENTE ELECTRONICO DEL TIQUETE DE MAQUINA REGISTRADORA CON SISTEMA P.O.S.</p> -->
+                <p>DOCUMENTO EQUIVALENTE ELECTRONICO DEL SISTEMA P.O.S.</p>
+                <p style="font-weight: bold;">Fecha Emisión: {{invoice.date}}</p>
+                <p>Fecha Validación DIAN: {{invoice.date}}<br>Hora Validación DIAN: {{invoice.time}}</p>
+            </div>
+        </div>
+
+        <div id="empresa-header">
+            {{company.business_name|title}}<br>
+            Sucursal - {{branch.business_name|title}}
+        </div>
+        <div id="empresa-header1">
+            <p style="font-size: 14px">NIT: {{company.documentI}} - 
+                {% if company.type_regime == 1 %}
+                    Responsable de IVA - Obligación: Declarar y Pagar
+                {% else %}
+                    No Responsable de IVA
+                {% endif %}</p>
+            <p style="font-size: 14px">Tipo Documento ID: {% if company.type_document_identification == 3 %}Cédula de Ciudadanía{% else %}NIT{% endif %}</p>
+            <p style="font-size: 14px">Resolución de Facturación Electrónica No. {{resolution.resolution}} de {{resolution.resolution_date}}, 
+                <br>
+                Prefijo: {{resolution.prefix}},  &nbsp;Rango {{resolution.from}} Al {{resolution.to}} <br> Vigencia Desde: {{resolution.date_from}} Hasta: {{resolution.date_to}}</p>
+            <p style="font-size: 14px">{{branch.address}} -</p>
+            <p style="font-size: 14px">{{branch.municipalities_branch}} - Colombia</p>
+            <p style="font-size: 14px">Teléfono - {{branch.phone}}</p>
+            <p style="font-size: 14px">E-mail: {{branch.email}}</p><br>
+            <p style="font-size: 14px; font-weight: bold;">FACTURA DE VENTA: {{resolution.prefix}} - {{invoice.number}}</p><br>
+            {% if invoice.annulled %}
+                <p style="font-size: 14px; font-weight: bold;">ESTE DOCUMENTO FUE ANULADO</p>
+                <p style="font-size: 14px; font-weight: bold;">NOTA CREDITO APLICADA</p><br>
+            {% endif %}
+            <img  style="width: 86px; height: auto;" src="{{qr}}" alt="QR">
+        </div><br>
+
+
+        <table class="table">
+            <tr>
+                <td style="text-align: left; font-size: 14px;">CC o NIT: {{customer.identification_number}}</td>
+                <td style="text-align: left; font-size: 14px;">Forma de Pago:{{payment_form.payment_form__name}}
+
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Cliente: {{customer.name}}</td>
+                <td style="text-align: left; font-size: 14px;">Medio de Pago: {{payment_form.payment_method__name}}  </td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Dirección: 
+                    {% if customer.identification_number == 222222222222 %}
+                        {{branch.address}}
+                    {% else %}
+                        {{customer.address}}
+                    {% endif %}
+                </td>
+                <td style="text-align: left; font-size: 14px;">Plazo Para Pagar: 0 Días</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Teléfono: 
+                    {% if customer.identification_number == 222222222222 %}
+                        {{branch.phone_1}}
+                    {% else %}
+                        {{customer.phone}}
+                    {% endif %}
+                </td>
+                <td style="text-align: left; font-size: 14px;">Fecha Vencimiento: {{payment_form.date_only}}</td>
+            </tr>
+        </table>
+        <br>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center w-80">Descripción</th>
+                    <th class="text-center">Cant</th>
+                    <th class="text-center">Val. Unit</th>
+                    <th class="text-center">Val. IVA</th>
+                    <th class="text-center">IC</th>
+                    <th class="text-center">Dcto</th>
+                    <th class="text-center">Val. Item</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in details %}
+                    <tr>
+                        <td style="text-align: left;">{{i.name}}</td>
+                        <td class="text-right">{{i.quantity}}</td>
+                        <td class="text-right">{{i.cost|floatformat:2}}</td>
+                        <td class="text-right">{{i.valtax|floatformat:2}}</td>
+                        <td class="text-right">{{i.ico|floatformat:2}}</td>
+                        <td class="text-right">{{i.discount|floatformat:2}}</td>
+                        <td class="text-right">{{i.subtotal|floatformat:2}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <div class="container-fluid">
+            <div class="row">
+                <div style="width:100%;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="text-align: center !important;">Impuestos</th>
+                                <th class="text-center" style="text-align: center !important;">Totales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="width: 50%;vertical-align: top;">
+                                    <table class="table" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th class="">Tipo</th>
+                                                <th class="text-center">Base</th>
+                                                <th class="text-center">%</th>
+                                                <th class="text-center">Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for i in list_taxes %}
+                                                <tr>
+                                                    <td style="text-align: left !important;">{{i.name}}</td>
+                                                    <td class="text-right">{{i.taxable_amount|floatformat:2}}</td>
+                                                    <td class="text-right">{{i.percent}}%</td>
+                                                    <td class="text-right">{{i.tax_amount|floatformat:2}}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td style="width: 50%;">
+                                    <table class="table" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Tipo</th>
+                                                <th class="text-center">Base</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Base:</td>
+                                                <td class="text-right">{{totals.subtotals|floatformat:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Impuestos:</td>
+                                                <td class="text-right">{{totals.tax|floatformat:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>IPOC:</td>
+                                                <td class="text-right">{{totals.ico|floatformat:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Descuentos Linea:</td>
+                                                <td class="text-right">{{totals.discount|floatformat:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Descuentos Global:</td>
+                                                <td class="text-right">0</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total Factura:</td>
+                                                <td class="text-right">{{totals.totals_with_discount|floatformat:2}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div>
+            <p style="font-size: 12px; text-align:left;">
+               <strong> Nota: </strong>&nbsp;<span style="color: red;">{% if invoice.note %}{{invoice.note}}{% else %}No hay observaciones.{% endif %}</span>
+            </p>
+        </div>
+        <br>
+        <div>
+            <p style="font-size: 12px; text-align:center;">
+                <strong>Importante:</strong><br>Debido a las regulaciones vigentes y
+                políticas internas de la empresa, no se aceptan 
+                cambios ni devoluciones de ningún tipo de licor.
+                Agradecemos su comprensión y colaboración
+                en este asunto.
+            </p>
+        </div>
+        <div id="footer">
+            <hr style="margin-bottom: 2px;">
+            <p id='mi-texto' style="font-size: 12px; text-align:center;">Factura No: {{invoice.prefix}} - {{invoice.number}} <br> Fecha y Hora de Generación: {{invoice.date}} - {{invoice.time}}</p>
+            <p style="font-size: 10px; text-align:center;">{% if invoice.cufe %}CUFE: {{invoice.cufe}}{% else %}<span style="font-weight: bold;">Factura No enviada a la DIAN{% endif %}</span></p>
+            <p id='mi-texto-1' style="font-size: 12px; text-align:center;">Factura electronica generada por Evansoft</p>
+        </div>
+    </div>
+</body>

@@ -1,0 +1,2950 @@
+{% extends '../base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="page-header">
+	<div class="row">
+		<div class="col-md-8 col-12 col-12 mb-2">
+			<div class="title">
+				<a class="btn btn-primary" href="{% url 'List_Employee' %}" role="button">Lista de empleados</a>
+			</div>
+		</div>
+		<div class="col-md-4 col-sm-12 col-12 text-right">
+			<select class="custom-select mb-2 payroll_periods">
+				<option selected="" value="0">Periodo de Nomina</option>
+				<option value="1">Semanal</option>
+				<option value="2">Decenal</option>
+				<option value="3">Catorcenal</option>
+				<option value="4">Quincenal</option>
+				<option value="5">Mensual</option>
+			</select>
+		</div>
+	</div>
+</div>
+
+<style>
+	.row.equal-height {
+		display: flex !important;
+		align-items: stretch !important;
+		flex-wrap: nowrap !important;
+		margin: 0 !important;
+	}
+
+	.row.equal-height > [class^="col-"] {
+		display: flex !important;
+		flex-direction: column !important;
+		padding: 0 10px !important; /* si usas padding entre columnas */
+	}
+
+	.card-box {
+		display: flex !important;
+		flex-direction: column !important;
+		flex-grow: 1 !important;
+		height: auto !important;
+	}
+
+	.profile-tab,
+	.tab,
+	.tab-content {
+		flex-grow: 1 !important;
+		display: flex !important;
+		flex-direction: column !important;
+		min-height: 0 !important;
+	}
+
+	.table-responsive {
+		flex-grow: 1 !important;
+		overflow: auto !important;
+	}
+</style>
+
+
+
+
+
+<div class="row equal-height g-0">
+	<!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30"> -->
+	<div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+		<div class="pd-20 card-box height-100-p">
+			<div class="profile-info">
+				<h5 class="mb-20 h5 text-blue">Información del empleado</h5>
+				<ul>
+					<li>
+					  <span>Nombre:</span>
+					  {{ employee.first_name|title }}
+					  {% if employee.middle_name and employee.middle_name != 'NO TIENE' %}
+					    {{ employee.middle_name|title }}
+					  {% endif %}
+					  {{ employee.surname|title }}
+					  {% if employee.second_surname and employee.second_surname != 'NO TIENE' %}
+					    {{ employee.second_surname|title }}
+					  {% endif %}
+					</li>
+
+					<li>
+						<span>Correo Electrónico:</span>
+						{{employee.email}}
+					</li>
+					<li>
+						<span>Número de Tlf:</span>
+						{{employee.phone}}
+					</li>
+					<li>
+						<span>Dirección:</span>
+						{{employee.address}}
+					</li>
+					<li>
+						<span>Cargo / ROL:</span>
+						{{employee.role_name}}
+					</li>
+					<li>
+						<span>Sucursal de Trabajo:</span>
+						{{employee.branch_name}}
+					</li>
+					<li>
+						<span>Salario Mensual:</span>
+						<span id="li_total_salary"></span>
+					</li>
+					<li>
+						<span>Dias Laborados:</span>
+						<span id="li_total_days_worked">0</span>
+					</li>
+					<li>
+						<span>Total Devengado:</span>
+						<span id="li_total_accrued">$0,00</span>
+					</li>
+					<li>
+						<span>Total Deducciones:</span>
+						<span id="li_total_deductions">$0,00</span>
+					</li>
+					<li>
+						<span>Total Valor Nómina:</span>
+						<span id="li_total_payroll">$0,00</span>
+					</li>
+					<li>
+						<span>Declarar Nómina:</span>
+						<button class="btn btn-primary send_payroll" disabled>Enviar</button>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 mb-30">
+		<div class="card-box height-100-p overflow-hidden">
+			<div class="profile-tab height-100-p">
+				<div class="tab height-100-p">
+					<ul class="nav nav-tabs customtab" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" data-toggle="tab" href="#accrued" role="tab">Devengado</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#deductions" role="tab">Deducciones</a>
+						</li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane fade show active" id="accrued" role="tabpanel">
+							<div class="pd-10 profile-task-wrap">
+								<div class="container-fluid pd-0">
+									<div class="row">
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary worked_days">Días Trabajadas</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary HE">Horas extras</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary common_vacation">Vacaciones</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary paid_vacation">Vaca. Pagadas</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary service_bonus">Prima</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary severance">Cesantías</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary work_disabilities">Incapacidad</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary maternity_leave">Lic. de Maternidad</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary paid_leave">Lic. Remunerada</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary non_paid_leave">lic. no remunerada</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary bonuses">Bonos</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary aid">Ayuda</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary other_concepts">Otros Conceptos</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary compensations">Compensaciones</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary epctv_bonuses">Bonos EPCTV</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary commissions">Comisiones</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary third_party_payments">Pagos a Terceros</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary advances">Avances</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary other_benefits">Otros Beneficios</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<hr>
+							<div class="table-responsive">
+								<table class="table table-bordered" id="table_accrued">
+									<thead class="thead-light">
+										<tr>
+											<th>Concepto</th>
+											<th>Valor</th>
+											<th class="text-center">Acción</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+									<tfoot>
+										<tr class="font-weight-bold">
+											<td>Total Devengado</td>
+											<td id="accrued_total_footer" style="text-align: right !important;">$0</td>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="deductions" role="tabpanel">
+							<div class="pd-10 profile-task-wrap">
+								<div class="container-fluid pd-0">
+									<div class="row">
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary fondossp_type_law_deductions_id">Fondo SP</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary labor_union">Labor Union</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary sanctions">Sanciones</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary orders">Libranza por Pedido</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary third_party_paymentsdet">Pagadas a Terceros</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary advancesdt">Avances</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary other_deductions">Otras Deducciones</button>
+											</div>
+										</div>
+										<div class="col-md-3 col-12">
+											<div class="form-group">
+												<button class="btn btn-primary direct_deductions">Deducciónes Individuales</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<hr>
+							<div class="table-responsive">
+								<table class="table table-bordered" id="table_deductions">
+									<thead class="thead-light">
+										<tr>
+											<th>Concepto</th>
+											<th>Valor</th>
+											<th class="text-center">Acción</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+									<tfoot>
+										<tr class="font-weight-bold">
+											<td>Total Deducciones</td>
+											<td id="deductions_total_footer" style="text-align: right !important;">$0</td>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- MODAL WORKED DAYS -->
+<div class="modal fade" id="modalworkeddays" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title" id="modalResolutionLabel text-white" style="color: white !important;">Días Laborados</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="workeddays">Cantidad de días laborados</label>
+					<input type="number" class="form-control workeddays" id="workeddays" name="workeddays" placeholder="Ingrese un número">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="saveworkeddays">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL HE -->
+<div class="modal fade" id="modalHE" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+					Horas extras
+					<i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+					   title="Tiempo adicional trabajado por fuera de la jornada laboral ordinaria, el cual debe ser remunerado con recargo según la normativa laboral."></i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="type_he">Tipo de Hora Extra</label>
+					<select class="form-control type_he" id="type_he" name="type_he">
+						<option value="">Seleccione el tipo de hora</option>
+						<option value="HEDs">Hora Extra Diurna</option>
+						<option value="HENs">Hora Extra Nocturna</option>
+						<option value="HRNs">Recargo Nocturno</option>
+						<option value="HEDDFs">Hora Extra Dominical/Festiva Diurna</option>
+						<option value="HRDDFs">Recargo Dominical/Festivo Diurno</option>
+						<option value="HENDFs">Hora Extra Dominical/Festiva Nocturna</option>
+						<option value="HRNDFs">Recargo Dominical/Festivo Nocturno</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Cantidad de hora trabajadas</label>
+					<input type="number" class="form-control quantity_he" id="quantity_he" name="quantity_he" placeholder="Ingrese un número">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Fecha inicial</label>
+					<input type="date" class="form-control" id="fecha">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Hora inicial</label>
+					<input type="time" class="form-control" id="start_time" name="start_time">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="savetype_he">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL COMMON VACATION -->
+<div class="modal fade" id="modalcommonvacation" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+					Vacaciones Comunes
+					<i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+					   title="Período de descanso remunerado que el trabajador toma tras cumplir un tiempo mínimo laborado. Generalmente corresponde a 15 días hábiles por cada año trabajado."></i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Fecha inicial</label>
+					<input type="date" class="form-control" id="start_vacations">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Fecha Final</label>
+					<input type="date" class="form-control" id="end_vacations">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_common_vacation">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL PAID VACATION -->
+<div class="modal fade" id="modalpaidvacation" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+					Vacaciones Pagadas
+					<i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+					   title="Compensación en dinero por días de vacaciones no disfrutados por el trabajador. Se pagan cuando el empleado no toma el descanso correspondiente, por ejemplo, al finalizar su contrato."></i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Días de vacaciones pagadas</label>
+					<input type="number" placeholder="360 hace referencia a 1 año" class="form-control" id="quantity_paid_vacation">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_paid_vacation">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL SERVICE BONUS -->
+<div class="modal fade" id="modalservicebonus" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+					Primas
+					<i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+					   title="Compensación económica que el empleador debe pagar al trabajador por ley, generalmente dos veces al año, como reconocimiento por el tiempo laborado."></i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="month">Meses laborados</label>
+					<select class="form-control month">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Pago no salarial</label>
+					<input type="number" class="form-control number-format" id="paymentNS">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_service_bonus">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL SEVERANCE -->
+<div class="modal fade" id="modalseverance" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+					Cesantías
+					<i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+					   title="Prestación social obligatoria que el empleador debe pagar al trabajador equivalente a un mes de salario por cada año trabajado o proporcional al tiempo laborado. Su objetivo es proteger al empleado en caso de desempleo."></i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="month_severance">Meses laborados</label>
+					<select class="form-control month_severance">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_severance">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL WORK DISABILITIES -->
+<div class="modal fade" id="modalworkdisabilitiese" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+				    Incapacidades Laborales
+				    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+				       title="Períodos durante los cuales el trabajador no puede laborar debido a enfermedad o accidente. Se paga una compensación proporcional al tiempo incapacitado, según la normativa laboral."></i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Fecha inicial</label>
+					<input type="date" class="form-control" id="start_work_disabilities">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Fecha Final</label>
+					<input type="date" class="form-control" id="end_work_disabilities">
+				</div>
+				<div class="form-group">
+					<label for="type_work_disabilities">Fecha Final</label>
+					<select class="form-control" id="type_work_disabilities">
+						<option value="1">Común</option>
+						<option value="2">Profesional</option>
+						<option value="3">Laboral</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_work_disabilities">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL MATERNITY LEAVE -->
+<div class="modal fade" id="modalmaternityleave" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+				    Licencia de Maternidad
+				    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+				       title="Período de descanso remunerado otorgado a las trabajadoras por motivo de embarazo y parto, permitiendo su recuperación y cuidado del recién nacido sin pérdida salarial."></i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Fecha inicial</label>
+					<input type="date" class="form-control" id="start_maternity_leave">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Fecha Final</label>
+					<input type="date" class="form-control" id="end_maternity_leave">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_maternity_leave">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL PAID LEAVE -->
+<div class="modal fade" id="modalpaidleave" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+				    Licencia Remunerada
+				    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+				       title="Período de descanso remunerado otorgado a los trabajadores por diversas razones, garantizando el pago durante la ausencia laboral."></i>
+				</h5>
+
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Fecha inicial</label>
+					<input type="date" class="form-control" id="start_paid_leave">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Fecha Final</label>
+					<input type="date" class="form-control" id="end_paid_leave">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_paid_leave">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL NON PAID LEAVE -->
+<div class="modal fade" id="modalnonpaidleave" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+				    Licencia No Remunerada
+				    <i class="ml-2 fas fa-info-circle"
+				       data-toggle="tooltip"
+				       data-placement="right"
+				       title="Período de ausencia no remunerada otorgado a los trabajadores por diversas razones, sin garantizar el pago durante la ausencia laboral.">
+				    </i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Fecha inicial</label>
+					<input type="date" class="form-control" id="start_non_paid_leave">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Fecha Final</label>
+					<input type="date" class="form-control" id="end_non_paid_leave">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_non_paid_leave">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL BONUSES -->
+<div class="modal fade" id="modalbonuses" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+				    Bonos
+				    <i class="ml-2 fas fa-info-circle"
+				       data-toggle="tooltip"
+				       data-placement="right"
+				       title="Pagos adicionales otorgados al trabajador, ya sea como bono salarial o no salarial, en reconocimiento a su desempeño, logros o beneficios especiales.">
+				    </i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Bono salarial</label>
+					<input type="number" class="form-control number-format" id="salary_bonus">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Bono no salarial</label>
+					<input type="number" class="form-control number-format" id="non_salary_bonus">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_bonuses">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL AID -->
+<div class="modal fade" id="modalaid" tabindex="-1" role="dialog" aria-labelledby="modalAidLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalAidLabel">
+          Ayudas (Aid)
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Pagos adicionales otorgados al trabajador que pueden ser parte del salario (auxilio salarial) o beneficios fuera del salario (auxilio no salarial), tales como auxilio de transporte, alimentación, educación u otros apoyos.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	      <div class="form-group">
+	        <label for="salary_assistance">Auxilio salarial</label>
+	        <input type="number" step="0.01" class="form-control number-format" id="salary_assistance" placeholder="Ej. 95000.00">
+	      </div>
+	      <div class="form-group">
+	        <label for="non_salary_assistance">Auxilio no salarial</label>
+	        <input type="number" step="0.01" class="form-control number-format" id="non_salary_assistance" placeholder="Ej. 50000.00">
+	      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_aid">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LEGAL STRIKE -->
+<div class="modal fade" id="modallegalstrike" tabindex="-1" role="dialog" aria-labelledby="modalResolutionLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title text-white" id="modalResolutionLabel">
+				    Huelga Legal
+				    <i class="ml-2 fas fa-info-circle"
+				       data-toggle="tooltip"
+				       data-placement="right"
+				       title="Período durante el cual los trabajadores ejercen el derecho a huelga legalmente reconocida, sin prestación de servicios ni remuneración durante esos días.">
+				    </i>
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="quantity_he">Fecha inicial</label>
+					<input type="date" class="form-control" id="start_legal_strike">
+				</div>
+				<div class="form-group">
+					<label for="quantity_he">Fecha Final</label>
+					<input type="date" class="form-control" id="end_legal_strike">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" id="set_legal_strike">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL OTHER CONCEPTS -->
+<div class="modal fade" id="modalotherconcepts" tabindex="-1" role="dialog" aria-labelledby="modalOtherConceptsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="modalOtherConceptsLabel">
+          Otros Conceptos
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Ingresos adicionales al salario, que pueden ser salariales o no salariales, tales como bonificaciones, ayudas o pagos extraordinarios."></i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+            <label for="salaryConcept">Concepto Salarial</label>
+            <input type="number" class="form-control number-format" id="salaryConcept" placeholder="Ingrese valor salarial">
+          </div>
+          <div class="form-group">
+            <label for="nonSalaryConcept">Concepto No Salarial</label>
+            <input type="number" class="form-control number-format" id="nonSalaryConcept" placeholder="Ingrese valor no salarial">
+          </div>
+          <div class="form-group">
+            <label for="descriptionConcept">Descripción</label>
+            <textarea class="form-control" id="descriptionConcept" rows="2" placeholder="Descripción del concepto"></textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-info" id="set_other_concepts">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPENSATIONS -->
+<div class="modal fade" id="modalCompensations" tabindex="-1" role="dialog" aria-labelledby="modalCompensationsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalCompensationsLabel">
+		    Compensaciones
+		    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+		       title="Pagos que recibe el trabajador por sus labores, incluyendo compensaciones ordinarias (regulares) y extraordinarias (pagos especiales fuera de lo habitual, como por logros u objetivos cumplidos).">
+		    </i>
+		</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	      <div class="form-group">
+	        <label for="ordinary_compensation">Compensación ordinaria</label>
+	        <input type="number" step="0.01" class="form-control number-format" id="ordinary_compensation" placeholder="Ej. 135000.00">
+	      </div>
+	      <div class="form-group">
+	        <label for="extraordinary_compensation">Compensación extraordinaria</label>
+	        <input type="number" step="0.01" class="form-control number-format" id="extraordinary_compensation" placeholder="Ej. 250000.00">
+	      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_compensations">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EPCTV BONUSES -->
+<div class="modal fade" id="modalEpctvBonuses" tabindex="-1" role="dialog" aria-labelledby="modalEpctvBonusesLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalEpctvBonusesLabel">
+		    Bonificaciones EPCTV
+		    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+		       title="Bonificaciones otorgadas al trabajador que pueden ser salariales o no salariales, incluyendo pagos en efectivo y en especie (como alimentación).">
+		    </i>
+		</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+            <label for="paymentS">Pago salarial</label>
+            <input type="number" step="0.01" class="form-control number-format" id="paymentS" placeholder="Ej. 135000.00">
+          </div>
+          <div class="form-group">
+            <label for="paymentNS">Pago no salarial</label>
+            <input type="number" step="0.01" class="form-control number-format" id="paymentNS" placeholder="Ej. 250000.00">
+          </div>
+          <div class="form-group">
+            <label for="salary_food_payment">Pago salarial en alimentación</label>
+            <input type="number" step="0.01" class="form-control number-format" id="salary_food_payment" placeholder="Ej. 135000.00">
+          </div>
+          <div class="form-group">
+            <label for="non_salary_food_payment">Pago no salarial en alimentación</label>
+            <input type="number" step="0.01" class="form-control number-format" id="non_salary_food_payment" placeholder="Ej. 250000.00">
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_epctv_bonuses">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMMISSIONS -->
+<div class="modal fade" id="modalcommissions" tabindex="-1" role="dialog" aria-labelledby="modalCommissionsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalCommissionsLabel">
+            Comisiones
+            <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+               title="Pagos adicionales que recibe el trabajador por concepto de comisiones, generalmente vinculados a ventas, objetivos alcanzados u otros resultados medibles.">
+            </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="commissions_container">
+            <div class="form-group">
+              <label for="commission_1">Comisión</label>
+              <input type="number" step="0.01" class="form-control number-format" id="commission_input" placeholder="Ej. 135000.00">
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_commissions">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL THIRD PARTY PAYMENTS -->
+<div class="modal fade" id="modalthirdpartypayments" tabindex="-1" role="dialog" aria-labelledby="modalCommissionsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalThirdPartyPaymentsLabel">
+		    Pagos a Terceros
+		    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+		       title="Pagos que realiza el empleador a nombre del trabajador hacia terceros, como cuotas sindicales, aportes a fondos, pagos de seguros o descuentos autorizados por nómina.">
+		    </i>
+		</h5>
+
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="commissions_container">
+            <div class="form-group">
+              <label for="commission_1">Comisión</label>
+              <input type="number" step="0.01" class="form-control number-format" id="commission_input" placeholder="Ej. 135000.00">
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_third_party_payments">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADVANCES -->
+<div class="modal fade" id="modaladvances" tabindex="-1" role="dialog" aria-labelledby="modalAdvancesLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalAdvancesLabel">
+		    Anticipos
+		    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+		       title="Pagos anticipados que el empleador otorga al trabajador y que luego son descontados del salario final, como adelantos de nómina u otros anticipos.">
+		    </i>
+		</h5>
+
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="advances_container">
+            <div class="form-group">
+              <label for="advance_input">Anticipo</label>
+              <input type="number" step="0.01" class="form-control number-format" id="advance" placeholder="Ej. 135000.00">
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_advances">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OTHER BENEFITS -->
+<div class="modal fade" id="modalotherbenefits" tabindex="-1" role="dialog" aria-labelledby="modalOtherBenefitsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalOtherBenefitsLabel">
+		    Otros Beneficios
+		    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+		       title="Incluye conceptos como dotación, apoyo de sostenimiento, teletrabajo, bonificación por retiro y compensaciones especiales otorgadas al trabajador.">
+		    </i>
+		</h5>
+
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="otherbenefits_container">
+            <div class="form-group">
+              <label for="endowment">Dotación</label>
+              <input type="number" step="0.01" class="form-control number-format" id="endowment" placeholder="Ej. 250000.00">
+            </div>
+            <div class="form-group">
+              <label for="sustenance_support">Apoyo de Sostenimiento</label>
+              <input type="number" step="0.01" class="form-control number-format" id="sustenance_support" placeholder="Ej. 1350000.00">
+            </div>
+            <div class="form-group">
+              <label for="telecommuting">Teletrabajo</label>
+              <input type="number" step="0.01" class="form-control number-format" id="telecommuting" placeholder="Ej. 250000.00">
+            </div>
+            <div class="form-group">
+              <label for="withdrawal_bonus">Bonificación por Retiro</label>
+              <input type="number" step="0.01" class="form-control number-format" id="withdrawal_bonus" placeholder="Ej. 250000.00">
+            </div>
+            <div class="form-group">
+              <label for="compensation">Compensación Especial</label>
+              <input type="number" step="0.01" class="form-control number-format" id="compensation" placeholder="Ej. 135000.00">
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_other_benefits">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OTHER DEDUCTIONS -->
+<div class="modal fade" id="modalFondoSP" tabindex="-1" role="dialog" aria-labelledby="modalFondoSPLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalFondoSPLabel">
+          Fondo de Solidaridad Pensional
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Incluye el aporte al Fondo de Solidaridad Pensional y su subcuenta adicional según el salario del trabajador.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="fondosp_container">
+          <div class="form-group">
+            <label for="fondossp_type_law_deductions_id">Tipo de Deducción (Fondo SP)</label>
+            <select class="form-control" id="fondossp_type_law_deductions_id">
+    	        <option value="">Seleccione un tipo</option>
+	            <option value="1" data-porcentaje="4">Fondo SP - 4%</option>
+				<option value="2" data-porcentaje="3.5">Fondo SP - 3.5%</option>
+				<option value="3" data-porcentaje="5">Fondo SP - 5%</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="fondosp_deduction_SP">Valor deducción Fondo SP</label>
+            <input type="number" step="0.01" disabled class="form-control number-format" id="fondosp_deduction_SP" placeholder="Ej. 60000.00">
+          </div>
+
+          <div class="form-group">
+            <label for="fondossp_sub_type_law_deductions_id">Tipo de Subfondo</label>
+            <select class="form-control" id="fondossp_sub_type_law_deductions_id">
+              <option value="">Seleccione un tipo</option>
+              <option value="4">Subfondo Adicional 0.2%</option>
+              <option value="5">Subfondo Adicional 0.5%</option>
+              <!-- Agrega más según tu catálogo -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="fondosp_deduction_sub">Valor deducción Subfondo</label>
+            <input type="number" step="0.01" disabled class="form-control number-format" id="fondosp_deduction_sub" placeholder="Ej. 30000.00">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_fondo_sp">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL LABOR UNION -->
+<div class="modal fade" id="modalLaborUnion" tabindex="-1" role="dialog" aria-labelledby="modalLaborUnionLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="modalLaborUnionLabel">
+          Aporte Sindical
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Dedución correspondiente al aporte sindical, basado en un porcentaje del salario.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="labor_union_container">
+          <div class="form-group">
+            <label for="labor_union_percentage">Porcentaje del Aporte (%)</label>
+            <input type="number" step="0.01" class="form-control number-format" id="labor_union_percentage" placeholder="Ej. 2.00">
+          </div>
+          <div class="form-group">
+            <label for="labor_union_deduction">Valor de la Deducción (COP)</label>
+            <input type="number" step="0.01" class="form-control number-format" id="labor_union_deduction" placeholder="Ej. 30000.00">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-info" id="set_labor_union">Agregar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SANCTIONS -->
+<div class="modal fade" id="modalSanctions" tabindex="-1" role="dialog" aria-labelledby="modalSanctionsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title" id="modalSanctionsLabel">
+          Sanciones
+          <i class="ml-2 fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="right"
+             title="Registra sanciones de carácter público o privado impuestas al trabajador.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="sanctions_container">
+          <div class="form-group">
+            <label for="public_sanction">Sanción Pública</label>
+            <input type="number" step="0.01" class="form-control number-format" id="public_sanction" placeholder="Ej. 300000.00">
+          </div>
+          <div class="form-group">
+            <label for="private_sanction">Sanción Privada</label>
+            <input type="number" step="0.01" class="form-control number-format" id="private_sanction" placeholder="Ej. 130000.00">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_sanctions">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ORDERS -->
+<div class="modal fade" id="modalOrders" tabindex="-1" role="dialog" aria-labelledby="modalOrdersLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalOrdersLabel">
+          Libranza por Pedido
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" title="Agrega deducciones por libranzas asociadas a pedidos."></i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="orders_container">
+          <div class="form-group">
+            <label for="order_description">Descripción del Pedido</label>
+            <input type="text" class="form-control" id="order_description" placeholder="Ej. LIBRANZA POR PEDIDO NRO 34256 GRUPO EXITO">
+          </div>
+          <div class="form-group">
+            <label for="order_deduction">Valor de la Deducción</label>
+            <input type="number" step="0.01" class="form-control number-format" id="order_deduction" placeholder="Ej. 13000.00">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_order">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL THIRD PARTY PAYMENTS -->
+<div class="modal fade" id="modalThirdPartyPayments" tabindex="-1" role="dialog" aria-labelledby="modalThirdPartyPaymentsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalThirdPartyPaymentsLabel">
+          Pagos a Terceros
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Deducciones pagadas directamente a terceros, como embargos u órdenes judiciales.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="third_party_payment">Valor del pago</label>
+          <input type="number" class="form-control number-format" id="third_party_payment" placeholder="Ej. 155000.00">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_third_party_payment">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADVANCES -->
+<div class="modal fade" id="modalAdvancesdt" tabindex="-1" role="dialog" aria-labelledby="modalAdvancesLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalAdvancesLabel">
+          Anticipos
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Anticipos entregados al trabajador que se deben descontar del pago total.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="advance_input">Valor del anticipo</label>
+          <input type="number" class="form-control number-format" id="advance_inputdt" placeholder="Ej. 135000">
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="set_advancesdt">Agregar</button>
+      </div>
+    
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OTRAS DEDUCCIONES -->
+<div class="modal fade" id="modalOtherDeductions" tabindex="-1" role="dialog" aria-labelledby="modalOtherDeductionsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title text-white" id="modalOtherDeductionsLabel">
+          Otras Deducciones
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Deducciones adicionales no incluidas en otras categorías.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="other_deduction_input">Valor deducción</label>
+          <input type="number" class="form-control number-format" id="other_deduction_input" placeholder="Ej. 133000">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="set_other_deductions">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEDUCCIONES INDIVIDUALES -->
+<div class="modal fade" id="modalDirectDeductions" tabindex="-1" role="dialog" aria-labelledby="modalDirectDeductionsLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+		<div class="modal-header bg-warning text-dark">
+		  <h5 class="modal-title text-dark" id="modalDirectDeductionsLabel">
+		    Otras Deducciones Individuales
+		    <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+		       title="Incluye deducciones personales del trabajador como pensión voluntaria, retención en la fuente, aportes a cooperativas, embargos fiscales, reintegros, educación, deudas y otros conceptos que afectan el pago final.">
+		    </i>
+		  </h5>
+		  <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Cerrar">
+		    <span aria-hidden="true">&times;</span>
+		  </button>
+		</div>
+
+
+      <div class="modal-body">
+        <div class="form-group"><label>Pensión voluntaria</label>
+          <input type="number" class="form-control number-format" id="voluntary_pension" placeholder="Ej. 158000">
+        </div>
+        <div class="form-group"><label>Retención en la fuente</label>
+          <input type="number" class="form-control number-format" id="withholding_at_source" placeholder="Ej. 65000">
+        </div>
+        <div class="form-group"><label>AFC</label>
+          <input type="number" class="form-control number-format" id="afc" placeholder="Ej. 33500">
+        </div>
+        <div class="form-group"><label>Cooperativa</label>
+          <input type="number" class="form-control number-format" id="cooperative" placeholder="Ej. 25000">
+        </div>
+        <div class="form-group"><label>Embargo fiscal</label>
+          <input type="number" class="form-control number-format" id="tax_liens" placeholder="Ej. 38500">
+        </div>
+        <div class="form-group"><label>Plan complementario</label>
+          <input type="number" class="form-control number-format" id="supplementary_plan" placeholder="Ej. 65000">
+        </div>
+        <div class="form-group"><label>Educación</label>
+          <input type="number" class="form-control number-format" id="education" placeholder="Ej. 59000">
+        </div>
+        <div class="form-group"><label>Reintegro</label>
+          <input type="number" class="form-control number-format" id="refund" placeholder="Ej. 47000">
+        </div>
+        <div class="form-group"><label>Deuda</label>
+          <input type="number" class="form-control number-format" id="debt" placeholder="Ej. 39000">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-warning" id="set_direct_deductions">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
+{% block script %}
+	<script>
+		function ajustarAlturas() {
+			const izquierda = $(".col-xl-4 .card-box");
+			const derecha = $(".col-xl-8 .card-box");
+
+			// Reset para evitar acumulaciones
+			izquierda.css("height", "auto");
+			derecha.css("height", "auto");
+
+			// Aplicar la mayor altura
+			const maxAltura = Math.max(izquierda.outerHeight(), derecha.outerHeight());
+
+			izquierda.css("height", maxAltura + "px");
+			derecha.css("height", maxAltura + "px");
+		}
+
+		$(document).ready(function(){
+			ajustarAlturas();
+
+			$(window).on("resize", ajustarAlturas);
+
+			$(".nav-tabs .nav-link").on("shown.bs.tab", ajustarAlturas);
+
+			$('#table_accrued tbody, #table_deductions tbody').on('DOMSubtreeModified', ajustarAlturas);
+		});
+
+
+
+		$(document).ready(function(){
+
+
+			$(function () {
+				$('[data-toggle="tooltip"]').tooltip()
+			})
+
+			let total_payment = {{employee.salary|safe}}
+			let transport_aid = 200000
+			let valor_hora, valor_dia = 0
+			let payroll = {}
+			let accrued_total = 0
+			let deductions_total = 0
+			let quantity_paid_vacation = 0
+			$("#li_total_salary").text(formatCurrency(total_payment));
+
+			function close_modal(obj){
+				$("#"+obj).modal('hide')
+			}
+
+
+			function unformatNumber(value) {
+			    return value.replace(/\./g, '').replace(',', '.');
+			}
+
+			function formatNumber(value) {
+			    if (!value) return '';
+			    let parts = value.toString().replace(/\D/g, '').split('');
+			    let integerPart = parts.join('').replace(/^0+/, '');
+			    let formatted = '';
+			    for (let i = integerPart.length - 1, j = 1; i >= 0; i--, j++) {
+			        formatted = integerPart[i] + formatted;
+			        if (j % 3 === 0 && i !== 0) formatted = '.' + formatted;
+			    }
+			    return formatted;
+			}
+
+			$(document).on('input', '.number-format', function () {
+			    let val = $(this).val();
+			    val = val.replace(/\D/g, '');
+			    if (!val) {
+			        $(this).val('');
+			        return;
+			    }
+
+			    let formatted = formatNumber(val);
+			    $(this).val(formatted);
+			});
+
+			function getNumericValue(id) {
+			    let raw = $("#" + id).val();
+			    return parseFloat(unformatNumber(raw)) || 0;
+			}
+
+			$(".send_payroll").click(function () {
+				let payroll_periods = $(".payroll_periods").val()
+				if( payroll_periods == 0){
+					Swal.fire({
+				        icon: 'error',
+				        title: 'Oops!... Algo ha salido mal.',
+				        text: 'Debe seleccionar el periodo de la nomina',
+				        confirmButtonText: 'Ok'
+				    })
+				    return false
+				}
+				payroll['payroll_period'] = payroll_periods
+				payroll['branch_id'] = {{request.session.branch_id|safe}}
+				payroll['notes'] = "No hay"
+				payroll['employee_id'] = {{employee.id}}
+			    Swal.fire({
+			        icon: 'question',
+			        title: '¿Deseas declarar esta nómina?',
+			        text: 'Una vez enviada, se procesará como declaración oficial.',
+			        showCancelButton: true,
+			        confirmButtonText: 'Sí, declarar',
+			        cancelButtonText: 'Cancelar',
+			        confirmButtonColor: '#3085d6',
+			        cancelButtonColor: '#d33'
+			    }).then((result) => {
+			        if (result.isConfirmed) {
+			            console.log("📤 Nómina enviada:", payroll);
+			            $.ajax({
+			                url: "{% url 'Send_Payroll' %}",
+			                method: "POST",
+			                data: JSON.stringify(payroll),
+			                contentType: "application/json",
+			                headers: {
+			                    "X-CSRFToken": getCookie('csrftoken')
+			                },
+			                success: function (response) {
+			                	if(response.result){
+				                    Swal.fire({
+				                        icon: 'success',
+				                        title: '¡Nómina enviada!',
+				                        text: 'La nómina fue declarada exitosamente.'
+				                    });
+				                }else{
+				                	if (Array.isArray(response.message)) {
+									    let listaHTML = "<ul>";
+									    response.message.forEach(function(item) {
+									        listaHTML += "<li>" + item + "</li>";
+									    });
+									    listaHTML += "</ul>";
+
+									    Swal.fire({
+									        icon: 'error',
+									        title: 'Hubo un problema al declarar la nómina.',
+									        html: listaHTML
+									    });
+									} else {
+									    Swal.fire({
+									        icon: 'error',
+									        title: 'Hubo un problema al declarar la nómina.',
+									        text: response.message
+									    });
+									}
+
+				                }
+			                    console.log("✅ Respuesta del servidor:", response);
+			                },
+			                error: function (xhr, status, error) {
+			                    Swal.fire({
+			                        icon: 'error',
+			                        title: 'Error al enviar',
+			                        text: 'Hubo un problema al declarar la nómina. Intenta nuevamente.'
+			                    });
+			                    console.error("❌ Error:", error);
+			                }
+			            });
+
+			        } else {
+			            Swal.fire({
+			                icon: 'info',
+			                title: 'Operación cancelada',
+			                text: 'La nómina no fue enviada.'
+			            });
+			        }
+			    });
+			});
+
+			// Función para obtener el token CSRF
+			function getCookie(name) {
+			    let cookieValue = null;
+			    if (document.cookie && document.cookie !== '') {
+			        const cookies = document.cookie.split(';');
+			        for (let i = 0; i < cookies.length; i++) {
+			            const cookie = cookies[i].trim();
+			            // ¿Este cookie comienza con el nombre que queremos?
+			            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+			                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			                break;
+			            }
+			        }
+			    }
+			    return cookieValue;
+			}
+
+
+
+			$("#fondosp_deduction_SP").prop("readonly", true);
+
+
+			$("#fondossp_type_law_deductions_id").on("change", function () {
+			    const porcentaje = parseFloat($(this).find(":selected").data("porcentaje")) || 0;
+			    const valor = total_payment * (porcentaje / 100); // <-- CORRECTO
+			    $("#fondosp_deduction_SP").val(valor.toFixed(2)); // <-- Este valor se debe escribir automáticamente
+			});
+
+
+
+
+			// Cambio subtipo fondo SP
+			$("#fondossp_sub_type_law_deductions_id").on("change", function () {
+			    const subId = $(this).val();
+			    const porcentaje = (subId === "4") ? 0.2 : (subId === "5") ? 0.5 : 0;
+			    const valor = total_payment * (porcentaje / 100);
+			    $("#fondosp_deduction_sub").val(valor.toFixed(2));
+			});
+
+
+
+			function calcularDeduccionSindicato() {
+			  let percentage = parseFloat($('#labor_union_percentage').val());
+			  if (!isNaN(total_payment) && !isNaN(percentage)) {
+			    let deduction = (total_payment * percentage / 100).toFixed(2);
+			    $('#labor_union_deduction').val(deduction);
+			  } else {
+			    $('#labor_union_deduction').val('');
+			  }
+			}
+
+			$('#labor_union_percentage').on('input', calcularDeduccionSindicato);
+			$('#total_payment').on('input', calcularDeduccionSindicato);
+
+			function CheckWorkedDays(){
+				if (!payroll["worked_days"]) {
+			        Swal.fire({
+						icon: 'error',
+						title: "Oopss.. Algo salió mal.",
+						text: "Primero debe establecer los dias laborados",
+						showCancelButton: true,
+						confirmButtonText: 'Sí, continuar',
+						cancelButtonText: 'Cancelar'
+					}).then((result) => {
+						if (result.isConfirmed) {
+							$("#modalworkeddays").modal("show");
+						}
+					});
+					return false
+			    }
+			    return true
+			}
+
+			function calcularDiasEntreFechas(start_date, end_date) {
+			  const start = new Date(start_date);
+			  const end = new Date(end_date);
+
+			  if (isNaN(start) || isNaN(end)) {
+			    throw new Error("Fechas inválidas");
+			  }
+			  if (end < start) {
+			    throw new Error("La fecha final no puede ser anterior a la fecha inicial");
+			  }
+
+			  const diffTime = end - start;
+			  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 para incluir ambos días
+
+			  return diffDays;
+			}
+			function abrirModalSiDiasTrabajados(selector_modal, input_to_focus=null) {
+				if(CheckWorkedDays()){
+					if (input_to_focus) {
+						$(input_to_focus).val(''); // limpiar input
+						$(input_to_focus).focus();
+					}
+					$(selector_modal).modal("show");
+				}
+			}
+
+			function formatCurrency(value) {
+			    let num = parseFloat(value);
+			    if (isNaN(num)) return "$0,00";
+			    return num.toLocaleString("es-CO", {
+			        style: "currency",
+			        currency: "COP",
+			        minimumFractionDigits: 2
+			    });
+			}
+
+
+			const translationMap = {
+			    // Devengado
+			    "worked_days": "Días trabajados",
+			    "salary": "Salario",
+			    "transportation_allowance": "Auxilio de transporte",
+			    "accrued_total": "Total Devengado",
+
+			    // Horas extras
+			    "HEDs": "Hora extra diurna",
+			    "HENs": "Hora extra nocturna",
+			    "HRNs": "Recargo nocturno",
+			    "HEDDFs": "Hora extra diurna en festivo",
+			    "HRDDFs": "Recargo diurno en festivo",
+			    "HENDFs": "Hora extra nocturna en festivo",
+			    "HRNDFs": "Recargo nocturno en festivo",
+
+			    // Subclaves comunes
+			    "start_time": "Hora inicio",
+			    "end_time": "Hora fin",
+			    "quantity": "Cantidad",
+			    "percentage": "Porcentaje",
+			    "payment": "Pago",
+
+			    // Vacaciones
+			    "common_vacation": "Vacaciones comunes",
+			    "paid_vacation": "Vacaciones pagadas",
+
+			    // Primas y cesantías
+			    "service_bonus": "Prima de servicios",
+			    "severance": "Cesantías",
+
+			    // Incapacidad y licencias
+			    "work_disabilities": "Incapacidad",
+			    "maternity_leave": "Licencia de maternidad",
+			    "paid_leave": "Licencia remunerada",
+			    "non_paid_leave": "Licencia no remunerada",
+
+			    // Otros devengados
+			    "bonuses": "Bonificaciones",
+			    "aid": "Auxilios",
+			    "other_concepts": "Otros conceptos",
+			    "compensations": "Compensaciones",
+			    "epctv_bonuses": "Bonificaciones EPCTV",
+			    "commissions": "Comisiones",
+			    "third_party_payments": "Pagos a terceros",
+			    "advances": "Anticipos",
+			    "endowment": "Dotación",
+			    "sustenance_support": "Apoyo de sostenimiento",
+			    "telecommuting": "Teletrabajo",
+			    "withdrawal_bonus": "Bonificación por retiro",
+			    "compensation": "Compensación",
+
+			    // Deducciones
+			    "eps_deduction": "EPS",
+			    "pension_deduction": "Pensión",
+			    "fondosp_deduction_SP": "Fondo SP",
+			    "fondosp_deduction_sub": "Subfondo SP",
+			    "fondossp_type_law_deductions_id": "Tipo Fondo SP (ID)",
+			    "fondossp_sub_type_law_deductions_id": "Subtipo Fondo SP (ID)",
+			    "labor_union": "Sindicato",
+			    "sanctions": "Sanciones",
+			    "orders": "Libranza",
+			    "other_deductions": "Otras deducciones",
+			    "voluntary_pension": "Pensión voluntaria",
+			    "withholding_at_source": "Retención en la fuente",
+			    "afc": "AFC",
+			    "cooperative": "Cooperativa",
+			    "tax_liens": "Embargos fiscales",
+			    "supplementary_plan": "Plan complementario",
+			    "education": "Educación",
+			    "refund": "Reintegro",
+			    "debt": "Deuda",
+			    "deductions_total": "Total Deducciones"
+			};
+
+
+
+			function translateKey(key) {
+			    return translationMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+			}
+
+
+
+			function refreshPayrollTables(payroll) {
+			    let totalAccrued = 0;
+			    let totalDeductions = 0;
+			    console.log(payroll);
+
+			    const allowedAccruedKeys = [
+			        "salary", "transportation_allowance",
+			        "payment", "paymentNS", "salary_bonus", "non_salary_bonus",
+			        "salary_assistance", "non_salary_assistance", "salary_concept", "non_salary_concept",
+			        "ordinary_compensation", "extraordinary_compensation", "paymentS", "paymentNS",
+			        "salary_food_payment", "non_salary_food_payment", "commission", "third_party_payment",
+			        "advance", "endowment", "sustenance_support", "telecommuting",
+			        "withdrawal_bonus", "compensation"
+			    ];
+
+			    const allowedDeductionKeys = [
+			        "deduction", "public_sanction", "private_sanction", "third_party_payment",
+			        "advance", "other_deduction", "voluntary_pension", "withholding_at_source",
+			        "afc", "cooperative", "tax_liens", "supplementary_plan", "education",
+			        "refund", "debt", "eps_deduction", "pension_deduction",
+			        "fondosp_deduction_SP", "fondosp_deduction_sub"
+			    ];
+
+			    const appendRow = (tableId, label, val, key, subKey = null, index = null) => {
+			        const rowId = `${tableId}_${key}${subKey ? `_${subKey}` : ""}${index !== null ? `_${index}` : ""}`;
+
+			        $(`#${tableId} tbody`).append(`
+			            <tr id="${rowId}">
+			                <td>${label}</td>
+			                <td class="text-right">${formatCurrency(val)}</td>
+			                <td class="text-center">
+			                    <button class="btn btn-sm btn-danger delete-row"
+			                        data-table="${tableId}"
+			                        data-key="${key}"
+			                        data-subkey="${subKey || ''}"
+			                        data-index="${index !== null ? index : ''}">
+			                        <i class="fa fa-trash"></i>
+			                    </button>
+			                </td>
+			            </tr>
+			        `);
+			    };
+
+			    // Limpiar tablas
+			    $("#table_accrued tbody").empty();
+			    $("#table_deductions tbody").empty();
+
+			    // === Devengado ===
+			    for (const [key, val] of Object.entries(payroll.accrued)) {
+			        if (key === "accrued_total") continue;
+
+			        if (Array.isArray(val)) {
+			            val.forEach((obj, index) => {
+			                for (const [subKey, subVal] of Object.entries(obj)) {
+			                    if (allowedAccruedKeys.includes(subKey)) {
+			                        // let numericVal = parseFloat(subVal);
+			                        let numericVal = Math.round(parseFloat(subVal) * 100) / 100;
+			                        if (!isNaN(numericVal) && numericVal > 0) {
+			                            const label = (
+			                                [
+			                                    "payment", "paymentNS", "salary_bonus", "non_salary_bonus",
+			                                    "salary_assistance", "non_salary_assistance", "salary_concept", "non_salary_concept",
+			                                    "ordinary_compensation", "extraordinary_compensation", "paymentS", "salary_food_payment",
+			                                    "non_salary_food_payment", "commission", "third_party_payment", "advance"
+			                                ].includes(subKey)
+			                            ) ? translateKey(key) : `${translateKey(key)} (${translateKey(subKey)})`;
+
+			                            appendRow("table_accrued", label, numericVal, key, subKey, index);
+			                            totalAccrued += numericVal;
+			                        }
+			                    }
+			                }
+			            });
+			        } else {
+			            if (allowedAccruedKeys.includes(key)) {
+			                let numericVal = parseFloat(val);
+			                if (!isNaN(numericVal) && numericVal > 0) {
+			                    appendRow("table_accrued", translateKey(key), numericVal, key);
+			                    totalAccrued += numericVal;
+			                }
+			            }
+			        }
+			    }
+			    accrued_total = totalAccrued
+
+			    $("#accrued_total_footer").text(formatCurrency(totalAccrued));
+
+			    // === Deducciones ===
+			    for (const [key, val] of Object.entries(payroll.deductions)) {
+			        if (key === "deductions_total") continue;
+
+			        if (Array.isArray(val)) {
+			            val.forEach((obj, index) => {
+			                for (const [subKey, subVal] of Object.entries(obj)) {
+			                    if (allowedDeductionKeys.includes(subKey)) {
+			                        // let numericVal = parseFloat(subVal);
+			                        let numericVal = Math.round(parseFloat(subVal) * 100) / 100;
+			                        if (!isNaN(numericVal) && numericVal > 0) {
+			                            const label = (
+			                                ["deduction", "public_sanction", "private_sanction", "third_party_payment", "advance", "other_deduction"].includes(subKey)
+			                            ) ? translateKey(key) : `${translateKey(key)} (${translateKey(subKey)})`;
+
+			                            appendRow("table_deductions", label, numericVal, key, subKey, index);
+			                            totalDeductions += numericVal;
+			                        }
+			                    }
+			                }
+			            });
+			        } else {
+			            if (allowedDeductionKeys.includes(key)) {
+			                let numericVal = parseFloat(val);
+			                if (!isNaN(numericVal) && numericVal > 0) {
+			                    appendRow("table_deductions", translateKey(key), numericVal, key);
+			                    totalDeductions += numericVal;
+			                }
+			            }
+			        }
+			    }
+
+			    deductions_total = totalDeductions
+			    payroll['accrued']['accrued_total'] = accrued_total;
+			    payroll['deductions']['deductions_total'] = deductions_total;
+
+			    $("#deductions_total_footer").text(formatCurrency(totalDeductions));
+
+			    // === Totales en <li> ===
+			    console.log(formatCurrency({{employee.salary|safe}}))
+			    $("#li_total_accrued").text(formatCurrency(totalAccrued));
+			    $("#li_total_deductions").text(formatCurrency(totalDeductions));
+			    $("#li_total_payroll").text(formatCurrency(totalAccrued - totalDeductions));
+			}
+
+			const criticalKeys = [
+			    "salary", "transportation_allowance", 
+			    "pension_deduction", "eps_deduction"
+			];
+
+			function cleanZeroAccrued(payroll) {
+			    const newAccrued = {};
+
+			    for (const [key, value] of Object.entries(payroll.accrued)) {
+			        if (Array.isArray(value)) {
+			            // Filtrar objetos donde el payment sea mayor a 0
+			            const cleanedArray = value.filter(item => {
+			                if (typeof item === "object" && item !== null) {
+			                    if ("payment" in item) {
+			                        return parseFloat(item.payment) > 0;
+			                    }
+			                    return Object.values(item).some(v => parseFloat(v) > 0);
+			                }
+			                return false;
+			            });
+
+			            if (cleanedArray.length > 0) {
+			                newAccrued[key] = cleanedArray;
+			            }
+
+			        } else if (typeof value === "object" && value !== null) {
+			            // Si es un objeto, verifica si tiene al menos un valor mayor a 0
+			            const cleanedObject = {};
+			            for (const [subKey, subVal] of Object.entries(value)) {
+			                if (parseFloat(subVal) > 0) {
+			                    cleanedObject[subKey] = subVal;
+			                }
+			            }
+
+			            if (Object.keys(cleanedObject).length > 0) {
+			                newAccrued[key] = cleanedObject;
+			            }
+
+			        } else {
+			            // Valor directo
+			            if (parseFloat(value) > 0 || typeof value === "string" && isNaN(parseFloat(value))) {
+			                newAccrued[key] = value;
+			            }
+			        }
+			    }
+
+			    payroll.accrued = newAccrued;
+			}
+
+			function cleanZeroDeductions(payroll) {
+			    const newDeductions = {};
+
+			    for (const [key, value] of Object.entries(payroll.deductions)) {
+			        if (Array.isArray(value)) {
+			            // Filtrar objetos del array donde al menos un valor numérico sea > 0
+			            const cleanedArray = value.filter(item => {
+			                if (typeof item === "object" && item !== null) {
+			                    return Object.values(item).some(val => parseFloat(val) > 0);
+			                }
+			                return false;
+			            });
+
+			            if (cleanedArray.length > 0) {
+			                newDeductions[key] = cleanedArray;
+			            }
+
+			        } else if (typeof value === "object" && value !== null) {
+			            // Si es un objeto directo
+			            const cleanedObject = {};
+			            for (const [subKey, subVal] of Object.entries(value)) {
+			                if (parseFloat(subVal) > 0) {
+			                    cleanedObject[subKey] = subVal;
+			                }
+			            }
+
+			            if (Object.keys(cleanedObject).length > 0) {
+			                newDeductions[key] = cleanedObject;
+			            }
+
+			        } else {
+			            // Valor directo
+			            if (parseFloat(value) > 0 || (typeof value === "string" && isNaN(parseFloat(value)))) {
+			                newDeductions[key] = value;
+			            }
+			        }
+			    }
+
+			    payroll.deductions = newDeductions;
+			}
+
+			function cleanFondoSP(payroll) {
+			    const sp = parseFloat(payroll.deductions.fondosp_deduction_SP || 0);
+			    const sub = parseFloat(payroll.deductions.fondosp_deduction_sub || 0);
+
+			    // Si SP está en 0 o no existe, eliminarlo y su ID
+			    if (isNaN(sp) || sp === 0) {
+			        delete payroll.deductions.fondosp_deduction_SP;
+			        delete payroll.deductions.fondossp_type_law_deductions_id;
+			    }
+
+			    // Si SUB está en 0 o no existe, eliminarlo y su ID
+			    if (isNaN(sub) || sub === 0) {
+			        delete payroll.deductions.fondosp_deduction_sub;
+			        delete payroll.deductions.fondossp_sub_type_law_deductions_id;
+			    }
+			}
+
+
+
+
+			$(document).on("click", ".delete-row", function () {
+			    const table = $(this).data("table");
+			    const key = $(this).data("key");
+			    const subKey = $(this).data("subkey");
+			    const index = $(this).data("index");
+
+			    const section = table === "table_accrued" ? "accrued" : "deductions";
+			    const criticalRemoved = criticalKeys.includes(subKey || key);
+
+			    // Obtener el valor a mostrar en la alerta
+			    let valueToDelete;
+			    if (index !== "") {
+			        if (payroll[section][key] && payroll[section][key][index]) {
+			            valueToDelete = payroll[section][key][index][subKey];
+			        }
+			    } else {
+			        if (subKey) {
+			            if (payroll[section][key] && payroll[section][key][subKey]) {
+			                valueToDelete = payroll[section][key][subKey];
+			            }
+			        } else {
+			            valueToDelete = payroll[section][key];
+			        }
+			    }
+
+			    const label = subKey
+			        ? `${translateKey(key)} (${translateKey(subKey)})`
+			        : translateKey(key);
+
+			    Swal.fire({
+			        icon: criticalRemoved ? 'warning' : 'question',
+			        title: criticalRemoved ? '¡Advertencia!' : '¿Estás seguro?',
+			        html: criticalRemoved
+			            ? `Has eliminado un concepto obligatorio: <strong>${label}</strong>.<br>¿Deseas borrar toda la nómina?`
+			            : `¿Deseas eliminar el valor <strong>${formatCurrency(valueToDelete)}</strong> del concepto <strong>${label}</strong>?`,
+			        showCancelButton: true,
+			        confirmButtonText: criticalRemoved ? 'Sí, borrar' : 'Sí, eliminar',
+			        cancelButtonText: 'Cancelar',
+			    }).then((result) => {
+			        if (!result.isConfirmed) return;
+
+			        if (criticalRemoved) {
+			            payroll.accrued = {};
+			            payroll.deductions = {};
+			            payroll.worked_days = null;
+
+			            $(".send_payroll").prop("disabled", true);
+			            $("#workeddays").val('')
+			            $("#li_total_days_worked").text(0)
+
+			            cleanZeroAccrued(payroll);
+			            cleanZeroDeductions(payroll);
+			            cleanFondoSP(payroll);
+			            refreshPayrollTables(payroll);
+
+			            Swal.fire({
+			                icon: 'success',
+			                title: 'Nómina reiniciada',
+			                timer: 1500,
+			                showConfirmButton: false
+			            });
+			            return;
+			        }
+
+			        // Eliminar valor del JSON
+			        if (index !== "") {
+			            if (payroll[section][key] && payroll[section][key][index]) {
+			                payroll[section][key][index][subKey] = "0.00";
+			            }
+			        } else {
+			            if (subKey) {
+			                if (payroll[section][key] && payroll[section][key][subKey]) {
+			                    payroll[section][key][subKey] = "0.00";
+			                }
+			            } else {
+			                payroll[section][key] = "0.00";
+			            }
+			        }
+
+			        // Eliminar del DOM
+			        $(this).closest("tr").remove();
+
+			        // Recalcular
+			        cleanZeroAccrued(payroll);
+			        cleanFondoSP(payroll);
+			        cleanZeroDeductions(payroll);
+			        refreshPayrollTables(payroll);
+
+			        Swal.fire({
+			            icon: 'success',
+			            title: 'Valor eliminado',
+			            timer: 1200,
+			            showConfirmButton: false
+			        });
+			    });
+			});
+
+
+			function redondearColombiano(valorStr, decimales = 2) {
+			    let numero = parseFloat(valorStr.replace(/\./g, '').replace(',', '.'));
+			    let factor = Math.pow(10, decimales);
+			    let redondeado = Math.round(numero * factor) / factor;
+			    return redondeado.toLocaleString("es-CO", { minimumFractionDigits: decimales });
+			}
+
+			//#######################
+			//		ACCRUED
+			//#######################
+
+			$(".worked_days").click(function(){ $("#modalworkeddays").modal('show'); });
+			$(".HE").click(function(){ abrirModalSiDiasTrabajados("#modalHE", "#quantity_he"); });
+			$(".common_vacation").click(function(){ abrirModalSiDiasTrabajados("#modalcommonvacation"); });
+			$(".paid_vacation").click(function(){ abrirModalSiDiasTrabajados("#modalpaidvacation"); });
+			$(".service_bonus").click(function(){ abrirModalSiDiasTrabajados("#modalservicebonus"); });
+			$(".severance").click(function(){ abrirModalSiDiasTrabajados("#modalseverance"); });
+			$(".work_disabilities").click(function(){ abrirModalSiDiasTrabajados("#modalworkdisabilitiese"); });
+			$(".maternity_leave").click(function(){ abrirModalSiDiasTrabajados("#modalmaternityleave"); });
+			$(".paid_leave").click(function(){ abrirModalSiDiasTrabajados("#modalpaidleave"); });
+			$(".non_paid_leave").click(function(){ abrirModalSiDiasTrabajados("#modalnonpaidleave"); });
+			$(".bonuses").click(function(){ abrirModalSiDiasTrabajados("#modalbonuses"); });
+			$(".aid").click(function(){ abrirModalSiDiasTrabajados("#modalaid"); });
+			$(".other_concepts").click(function(){ abrirModalSiDiasTrabajados("#modalotherconcepts"); });
+			$(".compensations").click(function(){ abrirModalSiDiasTrabajados("#modalcompensations"); });
+			$(".epctv_bonuses").click(function(){ abrirModalSiDiasTrabajados("#modalEpctvBonuses"); });
+			$(".commissions").click(function(){ abrirModalSiDiasTrabajados("#modalcommissions"); });
+			$(".third_party_payments").click(function(){ abrirModalSiDiasTrabajados("#modalthirdpartypayments"); });
+			$(".advances").click(function(){ abrirModalSiDiasTrabajados("#modaladvances"); });
+			$(".other_benefits").click(function(){ abrirModalSiDiasTrabajados("#modalotherbenefits"); });
+
+			//#######################
+			//		DEDUCTIONS
+			//#######################
+
+			$(".fondossp_type_law_deductions_id").click(function(){ abrirModalSiDiasTrabajados("#modalFondoSP"); });
+			$(".labor_union").click(function(){ abrirModalSiDiasTrabajados("#modalLaborUnion"); });
+			$(".sanctions").click(function(){ abrirModalSiDiasTrabajados("#modalSanctions"); });
+			$(".orders").click(function(){ abrirModalSiDiasTrabajados("#modalOrders"); });
+			$(".third_party_paymentsdet").click(function(){ abrirModalSiDiasTrabajados("#modalThirdPartyPayments"); });
+			$(".advancesdt").click(function(){ abrirModalSiDiasTrabajados("#modalAdvancesdt"); });
+			$(".other_deductions").click(function(){ abrirModalSiDiasTrabajados("#modalOtherDeductions"); });
+			$(".direct_deductions").click(function(){ abrirModalSiDiasTrabajados("#modalDirectDeductions"); });
+
+			//#######################
+			//		LOGICA ACCRUED
+			//#######################
+
+			$("#saveworkeddays").click(function () {
+			    let quantity = parseInt($("#workeddays").val());
+
+			    if (isNaN(quantity) || quantity < 1 || quantity > 31) {
+			        Swal.fire({
+			            icon: 'error',
+			            title: "Oopss.. Algo salió mal.",
+			            text: "Por favor, ingresa un número de días laborados entre 1 y 31.",
+			            confirmButtonText: 'OK',
+			        });
+			        return;
+			    }
+			    payroll["worked_days"] = quantity
+			    if (!payroll['deductions']) payroll['deductions'] = {};
+			    if (!payroll['accrued']) payroll['accrued'] = {};
+
+			    valor_dia = total_payment / 30;  // salario mensual dividido en 30 días
+			    let salario_proporcional = valor_dia * quantity;
+			    total_payment = salario_proporcional
+			    valor_hora = valor_dia / 8;
+
+			    let pension = salario_proporcional * 0.04;
+			    let eps = salario_proporcional * 0.04;
+
+			    // Guardar datos en payroll
+			    quantity_paid_vacation = quantity
+			    payroll['accrued']['worked_days'] = quantity;
+			    payroll['accrued']['salary'] = salario_proporcional;
+			    let allowance = (transport_aid / 30) * quantity;
+			    payroll['accrued']['transportation_allowance'] = Math.round(allowance * 100) / 100;
+
+			    payroll['deductions']['eps_type_law_deductions_id'] = 1;
+			    payroll['deductions']['pension_deduction'] = pension;
+			    payroll['deductions']['pension_type_law_deductions_id'] = 5;
+			    payroll['deductions']['eps_deduction'] = eps;		    
+
+			    accrued_total += salario_proporcional + payroll['accrued']['transportation_allowance'];
+			    deductions_total += pension + eps;
+
+			    payroll['accrued']['accrued_total'] = accrued_total;
+			    payroll['deductions']['deductions_total'] = deductions_total;
+
+			    console.log("Valor día:", valor_dia);
+			    console.log("Salario proporcional:", salario_proporcional);
+			    console.log("Pensión (4%):", pension);
+			    console.log("EPS (4%):", eps);
+			    $("#workeddays").val('')
+
+			    $("#li_total_days_worked").text(quantity)
+
+			    $(".send_payroll").prop("disabled", false);
+			    $(".update_payroll").prop("disabled", false);
+
+			    $("#modalworkeddays").modal("hide");
+			    refreshPayrollTables(payroll);
+			});
+
+			$("#savetype_he").click(function () {
+			    let percentage = 0;
+			    let value = $("#type_he").val();
+			    let quantity = parseInt($("#quantity_he").val());
+			    let fecha = $("#fecha").val();
+			    let hora = $("#start_time").val();
+			    let start = new Date(`${fecha}T${hora}:00`);
+			    let end = new Date(start);
+			    end.setHours(end.getHours() + quantity);
+			    function toLocalISOString(date) {
+			        const pad = (n) => n.toString().padStart(2, '0');
+			        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+			    }
+			    let start_time = toLocalISOString(start);
+			    let end_time = toLocalISOString(end);
+			    if (value == "HEDs") percentage = 25;
+			    else if (value == "HENs") percentage = 75;
+			    else if (value == "HRNs") percentage = 35;
+			    else if (value == "HEDDFs") percentage = 100;
+			    else if (value == "HRDDFs") percentage = 75;
+			    else if (value == "HENDFs") percentage = 150;
+			    else if (value == "HRNDFs") percentage = 110;
+
+			    let valor_total = valor_hora * quantity * (1 + (percentage / 100));
+
+			    if (!payroll['accrued'][value]) {
+			        payroll['accrued'][value] = [];
+			    }
+
+			    payroll['accrued'][value].push({
+			        "start_time": start_time,
+			        "end_time": end_time,
+			        "quantity": quantity,
+			        "percentage": percentage,
+			        "payment": valor_total.toString()
+			    });
+			    accrued_total += valor_total
+
+			    console.log(payroll);
+			    $("#quantity_he").val('');
+			    refreshPayrollTables(payroll)
+			});
+
+			const festivos2025 = [
+			  "2025-01-01",
+			  "2025-01-06",
+			  "2025-03-24",
+			  "2025-04-17",
+			  "2025-04-18",
+			  "2025-05-01",
+			  "2025-06-02",
+			  "2025-06-23",
+			  "2025-06-30",
+			  "2025-07-20",
+			  "2025-08-07",
+			  "2025-08-18",
+			  "2025-10-13",
+			  "2025-11-03",
+			  "2025-11-11",
+			  "2025-12-08",
+			  "2025-12-25",
+			];
+
+			function esFestivo(fecha) {
+			  const f = fecha.toISOString().split("T")[0];
+			  return festivos2025.includes(f);
+			}
+
+
+
+			function calcularDiasVacaciones() {
+				const festivos2025 = [
+					"2025-01-01", "2025-01-06", "2025-03-24", "2025-04-17", "2025-04-18",
+					"2025-05-01", "2025-06-02", "2025-06-23", "2025-06-30", "2025-07-20",
+					"2025-08-07", "2025-08-18", "2025-10-13", "2025-11-03", "2025-11-11",
+					"2025-12-08", "2025-12-25"
+				];
+
+				const startDate = new Date($("#start_vacations").val());
+				const endDate = new Date($("#end_vacations").val());
+
+				if (isNaN(startDate) || isNaN(endDate)) {
+					Swal.fire({
+						icon: "error",
+						title: "Fechas inválidas",
+						text: "Debes seleccionar ambas fechas de inicio y fin de vacaciones.",
+					});
+					return;
+				}
+
+				if (endDate < startDate) {
+					Swal.fire({
+						icon: "error",
+						title: "Rango de fechas incorrecto",
+						text: "La fecha final no puede ser anterior a la fecha inicial.",
+					});
+					return;
+				}
+
+				let count = 0;
+				let current = new Date(startDate);
+
+				while (current <= endDate) {
+					const day = current.getDay(); // 0 = domingo
+					const isoDate = current.toISOString().split("T")[0];
+
+					if (day !== 0 && !festivos2025.includes(isoDate)) {
+						count++;
+					}
+
+					current.setDate(current.getDate() + 1);
+				}
+
+				console.log("Días hábiles de vacaciones:", count);
+				return count;
+			}
+
+
+
+			$("#set_common_vacation").click(function(){
+				let quantity_days = parseInt(calcularDiasVacaciones())
+				if(!quantity_days){
+					return
+				}
+				if (!payroll['accrued']['common_vacation']) {
+			        payroll['accrued']['common_vacation'] = [];
+			    }
+				payroll['accrued']['common_vacation'].push(
+					{
+						"start_date": $("#start_vacations").val(),
+		                "end_date": $("#end_vacations").val(),
+		                "quantity": quantity_days,
+		                "payment": (quantity_days * valor_dia)
+					}
+				)
+				accrued_total += (quantity_days * valor_dia)
+				console.log(payroll);
+				close_modal('modalcommonvacation')
+				refreshPayrollTables(payroll)
+			})
+
+			$("#set_paid_vacation").click(function () {
+			    if (!payroll['accrued']['paid_vacation']) {
+			        payroll['accrued']['paid_vacation'] = [];
+			    }
+
+			    // Capturar los días trabajados del input
+			    let dias_trabajados = parseInt($("#quantity_paid_vacation").val());
+
+			    if (isNaN(dias_trabajados) || dias_trabajados <= 0) {
+			        alert("Ingresa una cantidad válida de días trabajados.");
+			        return;
+			    }
+
+			    // Calcular días de vacaciones proporcionales
+			    let dias_vacaciones = (dias_trabajados / 360) * 15;
+			    let pago_vacaciones = dias_vacaciones * valor_dia;
+
+			    payroll['accrued']['paid_vacation'].push({
+			        "quantity": dias_vacaciones.toFixed(2),
+			        "payment": pago_vacaciones.toFixed(2)
+			    });
+
+			    $("#quantity_paid_vacation").val("");
+
+			    accrued_total += pago_vacaciones;
+
+			    if (!payroll['accrued']['accrued_total']) {
+			        payroll['accrued']['accrued_total'] = 0;
+			    }
+			    payroll['accrued']['accrued_total'] += pago_vacaciones;
+
+			    close_modal('modalpaidvacation');
+			    refreshPayrollTables(payroll);
+			});
+
+
+			$("#set_service_bonus").click(function(){
+			    let quantity_month = parseInt($(".month").val());
+			    if (typeof total_payment === 'undefined' || isNaN(total_payment)) {
+			        alert("El valor total de salario no está definido o es inválido.");
+			        return;
+			    }
+			    let non_salary_payment = parseFloat(getNumericValue("paymentNS")) || 0;
+			    let prima_salarial = (total_payment * quantity_month) / 12;
+			    let prima_total = prima_salarial + non_salary_payment;
+			    if (!payroll['accrued']['service_bonus']) {
+			        payroll['accrued']['service_bonus'] = [];
+			    }
+
+			    payroll['accrued']['service_bonus'].push(
+			        {
+			            "quantity": quantity_month * 30,
+			            "payment": prima_salarial.toFixed(2),
+			            "paymentNS": non_salary_payment.toFixed(2)
+			        }
+			    );
+			    accrued_total += prima_salarial
+			    accrued_total += non_salary_payment
+			    console.log(`Prima salarial calculada: $${prima_salarial.toFixed(2)}`);
+			    console.log(`No salarial ingresado: $${non_salary_payment.toFixed(2)}`);
+			    console.log(`Prima total: $${prima_total.toFixed(2)}`);
+			    close_modal('modalservicebonus')
+			    refreshPayrollTables(payroll)
+			});
+
+
+			$("#set_severance").click(function(){
+				let months_worked = parseInt($(".month_severance").val())
+				let interest_rate = 12
+				let severance_payment = (total_payment * months_worked) / 12
+				let interest_payment = (severance_payment * interest_rate / 100) * (months_worked / 12)
+				if (!payroll['accrued']['severance']) {
+			        payroll['accrued']['severance'] = [];
+			    }
+				payroll['accrued']['severance'].push(
+				    {
+				        "payment": severance_payment.toFixed(2),
+				        "percentage": interest_rate.toString(),
+				        "interest_payment": interest_payment.toFixed(2)
+				    }
+				)
+				accrued_total += (severance_payment + interest_payment)
+				close_modal('modalseverance')
+				refreshPayrollTables(payroll)
+			})
+
+
+			$("#set_work_disabilities").click(function(){
+				let start_date = $("#start_work_disabilities").val()
+				let end_date = $("#end_work_disabilities").val()
+				let count_days = calcularDiasEntreFechas(start_date, end_date)
+
+				if (!payroll['accrued']['work_disabilities']) {
+			        payroll['accrued']['work_disabilities'] = [];
+			    }
+			    payroll['accrued']['work_disabilities'].push({
+	                "start_date": start_date,
+	                "end_date": end_date,
+	                "type": $("#type_work_disabilities").val(),
+	                "quantity": count_days,
+	                "payment": (valor_dia * count_days).toString()
+	            })
+	            accrued_total += (valor_dia * count_days)
+	            console.log(payroll)
+	            close_modal('modalworkdisabilitiese')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_maternity_leave").click(function(){
+				let start_date = $("#start_maternity_leave").val()
+				let end_date = $("#end_maternity_leave").val()
+				let count_days = calcularDiasEntreFechas(start_date, end_date)
+				if (!payroll['accrued']['maternity_leave']) {
+			        payroll['accrued']['maternity_leave'] = [];
+			    }
+				payroll['accrued']['maternity_leave'].push(
+		            {
+		                "start_date": start_date,
+		                "end_date": end_date,
+		                "quantity": count_days,
+		                "payment": (count_days * valor_dia).toString()
+		            }
+		        )
+		        accrued_total += (count_days * valor_dia)
+		        close_modal('modalmaternityleave')
+		        refreshPayrollTables(payroll)
+
+			})
+
+			$("#set_paid_leave").click(function(){
+				let start_date = $("#start_paid_leave").val()
+				let end_date = $("#end_paid_leave").val()
+				let count_days = calcularDiasEntreFechas(start_date, end_date)
+				if (!payroll['accrued']['paid_leave']) {
+			        payroll['accrued']['paid_leave'] = [];
+			    }
+			    payroll['accrued']['paid_leave'].push({
+	                "start_date": start_date,
+	                "end_date": end_date,
+	                "quantity": count_days,
+	                "payment": (count_days * valor_dia).toString()
+	            })
+	            accrued_total += (count_days * valor_dia)
+	            close_modal('modalpaidleave')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_non_paid_leave").click(function(){
+				let start_date = $("#start_non_paid_leave").val()
+				let end_date = $("#end_non_paid_leave").val()
+				let count_days = calcularDiasEntreFechas(start_date, end_date)
+				if (!payroll['accrued']['non_paid_leave']) {
+			        payroll['accrued']['non_paid_leave'] = [];
+			    }
+			    payroll['accrued']['non_paid_leave'].push({
+	                "start_date": start_date,
+	                "end_date": end_date,
+	                "quantity": count_days
+	            })
+	            close_modal('modalnonpaidleave')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_bonuses").click(function(){
+				if (!payroll['accrued']['bonuses']) {
+			        payroll['accrued']['bonuses'] = [];
+			    }
+
+			    let salary_bonus = parseInt(getNumericValue("salary_bonus"))
+			    let non_salary_bonus = parseInt(getNumericValue("non_salary_bonus"))
+
+			    payroll['accrued']['bonuses'].push({
+	                "salary_bonus": salary_bonus,
+	                "non_salary_bonus": non_salary_bonus,
+	            })
+	            accrued_total += (salary_bonus * non_salary_bonus)
+	            close_modal('modalbonuses')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_aid").click(function(){
+				if (!payroll['accrued']['aid']) {
+			        payroll['accrued']['aid'] = [];
+			    }
+			    let salary_bonus = getNumericValue("salary_bonus")
+			    let non_salary_bonus = getNumericValue("non_salary_bonus")
+			    payroll['accrued']['aid'].push({
+	                "salary_assistance": salary_bonus,
+	                "non_salary_assistance": non_salary_bonus,
+	            })
+	            accrued_total += (salary_bonus * non_salary_bonus)
+	            close_modal('modalaid')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_legal_strike").click(function(){
+				let start_date = $("#start_legal_strike").val()
+				let end_date = $("#end_legal_strike").val()
+				let count_days = calcularDiasEntreFechas(start_date, end_date)
+				if (!payroll['accrued']['legal_strike']) {
+			        payroll['accrued']['legal_strike'] = [];
+			    }
+			    payroll['accrued']['legal_strike'].push({
+	                "start_date": start_date,
+	                "end_date": end_date,
+	                "quantity": count_days
+	            })
+	            close_modal('modallegalstrike')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_other_concepts").click(function(){
+				let salaryConcept = getNumericValue("salaryConcept")
+				let nonSalaryConcept = getNumericValue("nonSalaryConcept")
+				if (!payroll['accrued']['other_concepts']) {
+			        payroll['accrued']['other_concepts'] = [];
+			    }
+			    payroll['accrued']['other_concepts'].push({
+	                "salary_concept": salaryConcept.toString(),
+	                "non_salary_concept": nonSalaryConcept.toString(),
+	                "description_concept": $("#descriptionConcept").val()
+	            })
+	            accrued_total += salaryConcept
+	            accrued_total += nonSalaryConcept
+	            close_modal('modalotherconcepts')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_compensations").click(function(){
+				let ordinary_compensation = getNumericValue("ordinary_compensation")
+				let extraordinary_compensation = getNumericValue("extraordinary_compensation")
+				if (!payroll['accrued']['compensations']) {
+			        payroll['accrued']['compensations'] = [];
+			    }
+			    payroll['accrued']['compensations'].push({
+	                "ordinary_compensation": ordinary_compensation,
+	                "extraordinary_compensation": extraordinary_compensation,
+	            })
+	            accrued_total += ordinary_compensation
+	            accrued_total += extraordinary_compensation
+	            close_modal('modalCompensations')
+	            refreshPayrollTables(payroll)
+			})
+
+			$("#set_epctv_bonuses").click(function () {
+				let paymentS = parseFloat(getNumericValue("paymentS")) || 0;
+				let paymentNS = parseFloat(getNumericValue("paymentNS")) || 0;
+				let salaryFood = parseFloat(getNumericValue("salary_food_payment")) || 0;
+				let nonSalaryFood = parseFloat(getNumericValue("non_salary_food_payment")) || 0;
+
+				if (!payroll['accrued']['epctv_bonuses']) {
+					payroll['accrued']['epctv_bonuses'] = [];
+				}
+
+				payroll['accrued']['epctv_bonuses'].push({
+					"paymentS": paymentS.toFixed(2),
+					"paymentNS": paymentNS.toFixed(2),
+					"salary_food_payment": salaryFood.toFixed(2),
+					"non_salary_food_payment": nonSalaryFood.toFixed(2)
+				});
+
+				accrued_total += paymentS + paymentNS + salaryFood + nonSalaryFood;
+				close_modal('modalEpctvBonuses')
+				refreshPayrollTables(payroll)
+			});
+
+
+			$("#set_commissions").click(function () {
+			    if (!payroll['accrued']['commissions']) {
+			        payroll['accrued']['commissions'] = [];
+			    }
+
+			    $('.commission_input').each(function () {
+			        let raw = $(this).val();
+			        let commission_value = parseFloat(unformatNumber(raw));
+
+			        if (!isNaN(commission_value)) {
+			            payroll['accrued']['commissions'].push({
+			                "commission": commission_value.toFixed(2)
+			            });
+			            accrued_total += commission_value;
+			        }
+			    });
+			    close_modal('modalcommissions')
+			    refreshPayrollTables(payroll)
+			});
+
+
+			$("#set_third_party_payments").click(function() {
+			    let third_party_payment = getNumericValue("third_party_payment");
+
+			    if (!payroll['accrued']['third_party_payments']) {
+			        payroll['accrued']['third_party_payments'] = [];
+			    }
+
+			    if (third_party_payment) {
+			        payroll['accrued']['third_party_payments'].push({
+			            "third_party_payment": third_party_payment
+			        });
+			        accrued_total += third_party_payment
+			    }
+			    close_modal('modalthirdpartypayments')
+			    refreshPayrollTables(payroll)
+			});
+
+			$("#set_advances").click(function() {
+			    let advance = getNumericValue("advance");
+
+			    if (!payroll['accrued']['advances']) {
+			        payroll['accrued']['advances'] = [];
+			    }
+
+			    if (advance) {
+			        payroll['accrued']['advances'].push({
+			            "advance": advance
+			        });
+			        accrued_total += advance
+			    }
+			    close_modal('modaladvances')
+			    refreshPayrollTables(payroll)
+			});
+
+			$("#set_other_benefits").click(function() {
+			    let endowment = getNumericValue("endowment");
+			    let sustenance_support = getNumericValue("sustenance_support");
+			    let telecommuting = getNumericValue("telecommuting");
+			    let withdrawal_bonus = getNumericValue("withdrawal_bonus");
+			    let compensation = getNumericValue("compensation");
+			    if (endowment) {
+			        payroll['accrued']['endowment'] = endowment;
+			        accrued_total += endowment
+			    }
+			    if (sustenance_support) {
+			        payroll['accrued']['sustenance_support'] = sustenance_support;
+			        accrued_total += sustenance_support
+			    }
+			    if (telecommuting) {
+			        payroll['accrued']['telecommuting'] = telecommuting;
+			        accrued_total += telecommuting
+			    }
+			    if (withdrawal_bonus) {
+			        payroll['accrued']['withdrawal_bonus'] = withdrawal_bonus;
+			        accrued_total += withdrawal_bonus
+			    }
+			    if (compensation) {
+			        payroll['accrued']['compensation'] = compensation;
+			        accrued_total += compensation
+			    }
+			    close_modal('modalotherbenefits')
+			    refreshPayrollTables(payroll)
+			});
+
+			//#######################
+			//		LOGICA DEDUCTIONS
+			//#######################
+
+			$("#set_sanctions").click(function () {
+			    let public_sanction = getNumericValue("public_sanction");
+			    let private_sanction = getNumericValue("private_sanction");
+
+			    if (!payroll['deductions']['sanctions']) {
+			        payroll['deductions']['sanctions'] = [];
+			    }
+
+			    payroll['deductions']['sanctions'].push({
+			        "public_sanction": isNaN(public_sanction) ? "0.00" : public_sanction.toFixed(2),
+			        "private_sanction": isNaN(private_sanction) ? "0.00" : private_sanction.toFixed(2)
+			    });
+
+			    if (!isNaN(public_sanction)) deductions_total += public_sanction;
+			    if (!isNaN(private_sanction)) deductions_total += private_sanction;
+			    close_modal('modalSanctions')
+			    refreshPayrollTables(payroll)
+			});
+
+			$("#set_labor_union").click(function () {
+			    let percentage = getNumericValue("labor_union_percentage"); // Por ejemplo: 2
+			    let baseSalary = payroll.accrued.salary || 0; // Toma el salario actual del JSON
+
+			    if (isNaN(percentage) || percentage <= 0 || baseSalary <= 0) {
+			        Swal.fire({
+			            icon: "error",
+			            title: "Datos inválidos",
+			            text: "Debes ingresar un porcentaje válido y asegurarte que haya un salario asignado.",
+			        });
+			        return;
+			    }
+
+			    // Calcular deducción
+			    let deduction = baseSalary * (percentage / 100); // <-- Aquí está la clave
+
+			    if (!payroll.deductions.labor_union) {
+			        payroll.deductions.labor_union = [];
+			    }
+
+			    payroll.deductions.labor_union.push({
+			        "percentage": percentage.toFixed(2),
+			        "deduction": deduction.toFixed(2)
+			    });
+
+			    close_modal('modalLaborUnion');
+			    refreshPayrollTables(payroll);
+			});
+
+
+			$("#set_fondo_sp").click(function () {
+			    let type_id = parseInt($("#fondossp_type_law_deductions_id").val());
+			    let value_sp = parseFloat($("#fondosp_deduction_SP").val())
+
+			    let subtype_id = parseInt($("#fondossp_sub_type_law_deductions_id").val());
+			    let value_sub = parseFloat($("#fondosp_deduction_sub").val());
+
+			    if (isNaN(subtype_id)) {
+			        subtype_id = 4;
+			        value_sub = 0.00;
+			        $("#fondossp_sub_type_law_deductions_id").val(4);
+			        $("#fondosp_deduction_sub").val("0.00");
+			    }
+
+			    // Validación
+			    if (isNaN(type_id) || isNaN(value_sp)) {
+			        Swal.fire({
+			            icon: "error",
+			            title: "Datos inválidos",
+			            text: "Debes seleccionar un tipo de fondo SP y un valor válido.",
+			        });
+			        return;
+			    }
+
+			    const porcentaje = parseFloat($("#fondossp_type_law_deductions_id option:selected").data("porcentaje")) || 0;
+				const valorEsperado = total_payment * (porcentaje / 100);
+				if (parseFloat(value_sp.toFixed(2)) > parseFloat(valorEsperado.toFixed(2))) {
+				    Swal.fire({
+				        icon: "warning",
+				        title: "Valor alto detectado",
+				        text: `La deducción supera el ${porcentaje}% del salario proporcional. Verifica los datos.`,
+				    });
+				    return;
+				}
+
+			    delete payroll.deductions.fondosp;
+			    delete payroll.deductions.fondosp_deduction_SP;
+			    delete payroll.deductions.fondosp_deduction_sub;
+			    delete payroll.deductions.fondossp_type_law_deductions_id;
+			    delete payroll.deductions.fondossp_sub_type_law_deductions_id;
+			    payroll.deductions.fondosp_deduction_SP = value_sp.toFixed(2);
+			    payroll.deductions.fondosp_deduction_sub = value_sub.toFixed(2);
+			    payroll.deductions.fondossp_type_law_deductions_id = type_id;
+			    payroll.deductions.fondossp_sub_type_law_deductions_id = subtype_id;
+			    console.log(deductions_total)
+			    deductions_total += parseFloat(value_sp)
+			    deductions_total += parseFloat(value_sub)
+			    console.log(deductions_total)
+
+			    close_modal('modalFondoSP');
+			    refreshPayrollTables(payroll);
+			});
+
+
+			$("#set_order").click(function () {
+			    let description = $("#order_description").val().trim();
+			    let deduction = getNumericValue("order_deduction");
+
+			    if (!description || isNaN(deduction)) {
+			        Swal.fire({
+			            icon: 'error',
+			            title: "Oopss.. Algo salió mal.",
+			            text: "Por favor ingrese una descripción válida y un valor numérico.",
+			            confirmButtonText: 'OK',
+			        });
+			        return;
+			    }
+
+			    if (!payroll['deductions']['orders']) {
+			        payroll['deductions']['orders'] = [];
+			    }
+
+			    payroll['deductions']['orders'].push({
+			        "description": description,
+			        "deduction": deduction.toFixed(2)
+			    });
+
+			    deductions_total += deduction;
+			    $("#order_description").val('');
+			    $("#order_deduction").val('');
+			    close_modal('modalOrders')
+			    refreshPayrollTables(payroll)
+			});
+
+			$("#set_third_party_payment").click(function () {
+			    let value = getNumericValue("third_party_payment");
+
+			    if (isNaN(value)) {
+			        Swal.fire({
+			            icon: 'error',
+			            title: "Oopss.. Algo salió mal.",
+			            text: "Por favor ingresa un valor válido para el pago a terceros.",
+			            confirmButtonText: 'OK',
+			        });
+			        return;
+			    }
+
+			    if (!payroll['deductions']['third_party_payments']) {
+			        payroll['deductions']['third_party_payments'] = [];
+			    }
+
+			    payroll['deductions']['third_party_payments'].push({
+			        "third_party_payment": value.toFixed(2)
+			    });
+
+			    deductions_total += value;
+
+			    $("#third_party_payment").val('');
+			    close_modal('modalThirdPartyPayments')
+			    refreshPayrollTables(payroll)
+			});
+
+			$("#set_advancesdt").click(function () {
+			    let advanceValue = getNumericValue("advance_inputdt");
+
+			    if (isNaN(advanceValue) || advanceValue <= 0) {
+			        Swal.fire({
+			            icon: 'error',
+			            title: "Oopss.. Algo salió mal.",
+			            text: "Por favor ingresa un valor válido para el anticipo.",
+			            confirmButtonText: 'OK',
+			        });
+			        return;
+			    }
+
+			    if (!payroll['deductions']['advances']) {
+			        payroll['deductions']['advances'] = [];
+			    }
+
+			    payroll['deductions']['advances'].push({
+			        "advance": advanceValue.toFixed(2)
+			    });
+
+			    deductions_total += advanceValue;
+
+			    $("#advance_inputdt").val("");
+			    close_modal('modalAdvancesdt')
+			    refreshPayrollTables(payroll)
+			});
+
+			$("#set_other_deductions").click(function () {
+			    let deductionValue = getNumericValue("other_deduction_input");
+
+			    if (isNaN(deductionValue) || deductionValue <= 0) {
+			        Swal.fire({
+			            icon: 'error',
+			            title: "Oopss.. Algo salió mal.",
+			            text: "Por favor ingresa un valor válido para la deducción.",
+			            confirmButtonText: 'OK',
+			        });
+			        return;
+			    }
+
+			    if (!payroll['deductions']['other_deductions']) {
+			        payroll['deductions']['other_deductions'] = [];
+			    }
+
+			    payroll['deductions']['other_deductions'].push({
+			        "other_deduction": deductionValue.toFixed(2)
+			    });
+
+			    deductions_total += deductionValue;
+
+			    $("#other_deduction_input").val("");
+			    close_modal('modalOtherDeductions')
+			    refreshPayrollTables(payroll)
+			});
+
+			$("#set_direct_deductions").click(function () {
+			    const fields = [
+			        "voluntary_pension",
+			        "withholding_at_source",
+			        "afc",
+			        "cooperative",
+			        "tax_liens",
+			        "supplementary_plan",
+			        "education",
+			        "refund",
+			        "debt"
+			    ];
+
+			    if (!payroll['deductions']) {
+			        payroll['deductions'] = {};
+			    }
+
+			    let totalDeductions = 0;
+
+			    fields.forEach(field => {
+			        let value = getNumericValue(field);  // Usa tu función de sanitizado de números
+			        payroll['deductions'][field] = value.toFixed(2);
+			        totalDeductions += value;
+			    });
+
+			    deductions_total += totalDeductions;
+
+			    Swal.fire({
+			        icon: 'success',
+			        title: '¡Guardado!',
+			        text: 'Las deducciones individuales fueron registradas correctamente.',
+			        confirmButtonText: 'OK',
+			    });
+			    close_modal('modalDirectDeductions')
+			    refreshPayrollTables(payroll)
+			});
+		})
+	</script>
+
+	
+{% endblock %}

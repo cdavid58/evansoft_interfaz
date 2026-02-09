@@ -1,0 +1,611 @@
+{% extends '../base.html' %}
+{% load format_filters %}
+{% block content %}
+<style>
+	.dataTables_paginate {
+	    overflow-x: auto;
+	    white-space: nowrap;
+	    display: flex;
+	    justify-content: center;
+	}
+
+	.dataTables_paginate .pagination {
+	    flex-wrap: nowrap;
+	}
+
+	@media screen and (max-width: 400px) {
+	    .dataTables_paginate {
+	        font-size: 12px;
+	    }
+	}
+</style>
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>Listado de Cotizaciones</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		{% if request.session.rols == 'Todos' %}
+			<select id="selectBranch" class="custom-select col-md-3 col-12 mb-2 select_branch">
+				<option value="0" selected disabled>Elija Sucursal</option>
+				{% for i in list_branch %}
+					<option value="{{ i.id }}"{% if i.id == request.session.branch_id %} selected{% endif %}>
+						{{ i.business_name }}
+					</option>
+				{% endfor %}
+			</select>
+		{% endif %}
+	</div>
+</div>
+
+<div class="card-box mb-30 p-2">
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="data-table table table-stripe hover nowrap" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th class="table-plus datatable-nosort">Factura</th>
+		                <th>Cliente</th>
+		                <th>Fecha</th>
+		                <th>Total</th>
+		                <th>Estado</th>
+		                <th>Acciones</th>
+		            </tr>
+		        </thead>
+		        <tbody></tbody>
+		    </table>
+		</div>
+	</div>
+</div>
+
+
+
+<!-- MODAL -->
+<div class="modal fade" id="bill_quote_modal" tabindex="-1" role="dialog" aria-labelledby="bill_quote_modal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      
+      <!-- Header -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white">Facturar Cotización</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <form id="form_resolution">
+          <div class="form-group">
+            <label for="type_invoice">Tipo de factura</label>
+            <select class="form-control" id="type_invoice" name="type_invoice" required>
+              <option value="1">Electrónica</option>
+              <option value="99">Remisión</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="selectPaymentForm">Forma de pago</label>
+            <select class="form-control" id="selectPaymentForm" name="selectPaymentForm" required>
+              <option value="10">Efectivo</option>
+              <option value="30">Crédito</option>
+              <option value="47">Transferencia Débito</option>
+              <option value="45">Transferencia Crédito</option>
+              <option value="49">Tarjeta Débito</option>
+              <option value="48">Tarjeta Crédito</option>
+            </select>
+          </div>
+
+          <div class="form-group payment_due_date" hidden>
+            <label for="payment_due_date">Fecha limite de pago</label>
+            <input type="date" class="form-control" id="payment_due_date" name="payment_due_date">
+          </div>
+
+          <div class="form-group">
+            <label for="charge_indicator">¿Es un cargo?</label>
+            <select class="form-control" id="charge_indicator">
+              <option value="">Seleccione una opción</option>
+              <option value="true">Sí (cargo)</option>
+              <option value="false">No (descuento)</option>
+            </select>
+          </div>
+
+          <!-- Motivo o tipo del cargo/descuento -->
+          <div class="form-group">
+            <label for="allowance_charge_reason">Motivo del cargo o descuento</label>
+            <input type="text" class="form-control" id="allowance_charge_reason" placeholder="Ej. Domicilio o descuento al total de la factura">
+          </div>
+
+          <!-- Monto -->
+          <div class="form-group">
+            <label for="amount_charges">Valor</label>
+            <input type="text" step="0.01" class="form-control number-format monto" id="amount_charges" placeholder="Ej. 60000.00">
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="bill_quote_save">Facturar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+	
+	let print_invoice = "{{ request.session.url_app }}/invoice/Print_Invoice/";
+	let print_quote = "{{ request.session.url_app }}/quote/Print_Quote/";
+	let branch_id = {{request.session.branch_id|safe}}
+	let quoteId = null
+	let information = new Object()
+	const acceptedCreditForms = [30, 45, 48]; // Formas de pago que requieren fecha
+
+	function acortarURL(urlLarga) {
+	    return $.ajax({
+	        url: "https://api.tinyurl.com/create",
+	        type: "POST",
+	        headers: {
+	            "Authorization": "Bearer PHWcrSo8wUcdwATg3Y2fJncm8WilJYVrd8JyQwf6maCGuMPgngPGNhlUyJC6",
+	            "Content-Type": "application/json"
+	        },
+	        data: JSON.stringify({
+	            url: urlLarga,
+	            domain: "tiny.one"
+	        })
+	    });
+	}
+
+	$(document).ready(function () {
+
+		function formatearMiles(valor) {
+	        // Elimina todo excepto números
+	        valor = valor.replace(/\D/g, '');
+	        // Agrega puntos como separadores de miles
+	        return valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	    }
+
+		$(document).on("input", ".monto", function () {
+	        const input = $(this);
+	        const caretPos = this.selectionStart;
+
+	        // Limpia el valor
+	        let limpio = input.val().replace(/\./g, '');
+	        if (!limpio) return;
+
+	        // Formatea
+	        let formateado = formatearMiles(limpio);
+
+	        // Establece el valor formateado
+	        input.val(formateado);
+
+	        // Ajusta el cursor al final
+	        this.setSelectionRange(formateado.length, formateado.length);
+	    });
+
+	    if ($.fn.DataTable.isDataTable('.table')) {
+	        $('.table').DataTable().destroy();
+	    }
+
+	    $(document).on("click", ".copy_invoice", function(){
+	    	let number = this.id
+	    	console.log(number)
+	    	let type_document = {{request.session.type_document|safe}}
+	    	let screenWidth = window.screen.width;
+            let screenHeight = window.screen.height;
+            let windowWidth = 800;
+            let windowHeight = 600;
+            let leftPosition = (screenWidth - windowWidth) / 2;
+            let topPosition = (screenHeight - windowHeight) / 2;
+            let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=${windowWidth},height=${windowHeight},left=${leftPosition},top=${topPosition}`;
+            let printWindow = window.open(print_quote + number + "/"+type_document, "invoice", params);
+            if (printWindow) {
+			    printWindow.onload = function() {
+			        printWindow.document.body.style.zoom = "100%";
+			        setTimeout(() => {
+				        printWindow.print();
+				    }, 500);
+
+			        printWindow.onafterprint = function() {
+			            printWindow.close();
+			        };
+			    };
+
+			    let checkClose = setInterval(function() {
+			        if (printWindow.closed) {
+			            clearInterval(checkClose);
+			            console.log("La ventana de impresión se ha cerrado");
+			        }
+			    }, 500);
+			}
+	    })
+	    
+
+	    // Abrir modal
+	    $(document).on("click", ".bill", function () {
+	        quoteId = parseInt(this.id, 10) || null;
+	        $("#bill_quote_modal").modal("show");
+	    });
+
+	    // Función para calcular días entre fechas
+	    function getDaysBetweenDates(startDate, endDate) {
+	        const start = new Date(startDate);
+	        const end = new Date(endDate);
+	        if (isNaN(start) || isNaN(end)) return 0;
+	        const diff = end - start;
+	        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+	    }
+
+	    function limpiarNumero(str) {
+		    // "13.800,00" -> 13800.00
+		    return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+		}
+
+		function getCookie(name) {
+		    let cookieValue = null;
+		    if (document.cookie && document.cookie !== '') {
+		        const cookies = document.cookie.split(';');
+		        for (let i = 0; i < cookies.length; i++) {
+		            const cookie = cookies[i].trim();
+		            // ¿Esta cookie empieza con el nombre que buscamos?
+		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+
+	    // Guardar información
+	    $("#bill_quote_save").click(function () {
+		    const paymentForm = parseInt($("#selectPaymentForm").val(), 10);
+		    const today = new Date().toISOString().split("T")[0];
+		    const paymentDueDate = $("#payment_due_date").val();
+		    const charge_indicator = $("#charge_indicator").val();
+		    let amount_charges = $("#amount_charges").val();
+		    const type_document = parseInt($("#type_invoice").val());
+
+		    if (!paymentForm) {
+		        alert("Debe seleccionar una forma de pago.");
+		        return;
+		    }
+
+		    const isCredit = acceptedCreditForms.includes(paymentForm);
+
+		    let information = {
+		        quote_id: quoteId,
+		        type_document: type_document,
+		        paymentForm: {
+		            payment_form_id: isCredit ? 2 : 1,
+		            payment_method_id: paymentForm,
+		            payment_due_date: isCredit && paymentDueDate ? paymentDueDate : today,
+		            duration_measure: isCredit && paymentDueDate
+		                ? getDaysBetweenDates(today, paymentDueDate)
+		                : 0
+		        }
+		    };
+
+		    if (charge_indicator !== "") {
+		        information["other_charges"] = [
+		            {
+		                amount: limpiarNumero(amount_charges),
+		                note: $("#allowance_charge_reason").val(),
+		                charge_indicator: charge_indicator
+		            }
+		        ];
+		    }
+
+		    console.log("Información lista para enviar:", information);
+
+		    // Enviar al backend en JSON
+		    $.ajax({
+		        url: "{% url 'Bill_Quote' %}",
+		        type: "POST",
+		        contentType: "application/json",
+		        headers: { "X-CSRFToken": getCookie("csrftoken")},
+		        data: JSON.stringify(information),
+		        success: function (response) {
+		            console.log("Respuesta del servidor:", response);
+		            if(response.data.result){
+	            		Swal.fire({
+					      icon: 'success',
+					      title: "Tarea Finalizada",
+					      text: response.data.quote.message,
+					      confirmButtonText: 'OK',
+					      confirmButtonColor: '#3085d6'
+					    }).then((result) => {
+					    	let number = response.data.quote.invoice_id
+					    	console.log(number)
+					    	let type_document = {{request.session.type_document|safe}}
+					    	let screenWidth = window.screen.width;
+				            let screenHeight = window.screen.height;
+				            let windowWidth = 800;
+				            let windowHeight = 600;
+				            let leftPosition = (screenWidth - windowWidth) / 2;
+				            let topPosition = (screenHeight - windowHeight) / 2;
+				            let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=${windowWidth},height=${windowHeight},left=${leftPosition},top=${topPosition}`;
+				            let printWindow = window.open(print_invoice + number + "/"+type_document, "invoice", params);
+				            if (printWindow) {
+							    printWindow.onload = function() {
+							        printWindow.document.body.style.zoom = "100%";
+							        setTimeout(() => {
+								        printWindow.print();
+								    }, 500);
+
+							        printWindow.onafterprint = function() {
+							            printWindow.close();
+							        };
+							    };
+
+							    let checkClose = setInterval(function() {
+							        if (printWindow.closed) {
+							            clearInterval(checkClose);
+							            console.log("La ventana de impresión se ha cerrado");
+							        }
+							    }, 500);
+							}
+					      if (result.isConfirmed) {
+					        location.reload(true)
+					      }
+					    })
+					}
+					else{
+						Swal.fire({
+						  icon: 'error',
+						  title: "Oopss.. Algo salió mal.",
+						  text: response.data.message,
+						  confirmButtonText: 'OK',
+						  confirmButtonColor: '#3085d6'
+						})
+					}
+		           
+		        },
+		        error: function (xhr) {
+		            console.error("Error:", xhr.responseText);
+		        }
+		    });
+		});
+
+
+	    // Mostrar/ocultar campo de fecha según forma de pago
+	    $("#selectPaymentForm").change(function () {
+	        const paymentForm = parseInt($(this).val(), 10);
+	        if (acceptedCreditForms.includes(paymentForm)) {
+	            $(".payment_due_date").removeAttr("hidden");
+	        } else {
+	            $(".payment_due_date").attr("hidden", true);
+	            $("#payment_due_date").val(""); // limpiar fecha
+	        }
+	    });
+
+	    const table = $('.table').DataTable({
+		    responsive: true,
+		    serverSide: true,
+		    processing: true,
+		    searching: true,
+		    pagingType: "simple_numbers",
+		    ajax: {
+		        url: "{% url 'Get_List_Quote' %}",
+		        type: "GET",
+		        headers: { "X-Requested-With": "XMLHttpRequest" },
+		        data: function (d) {
+		            d.branch_id = branch_id;
+		            d.search = d.search || {};
+		            d.search.value = d.search.value || '';
+		        },
+		        dataSrc: function (json) {
+		            return json.data || [];
+		        }
+		    },
+		    columns: [
+		        { data: "quote", title: "Cotizacón", className: "table-plus" },
+		        { data: "customer", title: "Cliente" },
+		        { data: "date_only", title: "Fecha" },
+		        {
+		            data: "total",
+		            title: "Total",
+		            render: function (data, type, row) {
+		                if (isNaN(data)) return data;
+		                return '$ ' + new Intl.NumberFormat('es-CO', {
+		                    minimumFractionDigits: 2,
+		                    maximumFractionDigits: 2
+		                }).format(data);
+		            }
+		        },
+		        { data: "status", title: "Estado de la factura" },
+		        {
+				    data: null,
+				    title: "Acciones",
+				    render: function (data, type, row) {
+					    var viewInvoiceUrl = "{% url 'View_Invoice' 0 %}".replace('0', row.id);
+					    var doc_invoice = "https://apidian.evansoft.co:9443/api/invoice/{{request.session.nit}}/FES-" + row.prefix + row.number + ".pdf";
+
+					    // ID único para el botón de WhatsApp
+					    var whatsappId = "wa_link_" + row.id;
+
+					    let actions = `
+					        <div class="dropdown">
+					            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+					                <i class="dw dw-more"></i>
+					            </a>
+					            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+					                
+					    `;
+					    if (!row.bill) {
+						    actions += `
+						    		<a class="dropdown-item bill" id="${row.id}" data-pk="${row.id}" href="javascript:void(0);" ><i class="dw dw-file4"></i> Facturar </a>
+						    `;
+						}
+					    actions += `
+					                <a class="dropdown-item view_pdf" data-pk="${row.id}" id="${row.id}" target="_blank"><i class="dw dw-file-31"></i> PDF</a>
+					                <a class="dropdown-item send_email_invoice" data-pk="${row.id}" id="${row.id}" href="javascript:void(0);"><i class="dw dw-email"></i> Email</a>
+					                <a class="dropdown-item copy_invoice" data-pk="${row.id}" id="${row.id}" href="javascript:void(0);"><i class="dw dw-copy"></i> Copia</a>
+					    `;
+
+					    if (!row.bill) {
+					        actions += `
+					            <a class="dropdown-item anulled_invoice" data-pk="${row.id}" id="${row.id}" href="javascript:void(0);">
+					                <i class="dw dw-delete-3"></i> Anular
+					            </a>
+					        `;
+					    }
+
+					    actions += `
+					            </div>
+					        </div>
+					    `;	
+
+					    // 👉 Ahora acortamos solo el doc_invoice
+					    acortarURL(doc_invoice).done(function (response) {
+					        let short_doc = response.data.tiny_url; // 🔗 URL corta
+					        let url_whatsapp = `https://wa.me/+57${row.phone}?text=Hola,%20Aqui%20te%20mandamos%20tu%20factura%20electronica.%20${short_doc}`;
+					        $("#" + whatsappId).attr("href", url_whatsapp);
+					    }).fail(function (err) {
+					        console.error("Error acortando URL:", err);
+					        // fallback con doc_invoice original
+					        let url_whatsapp = `https://wa.me/+57${row.phone}?text=Hola,%20Aqui%20te%20mandamos%20tu%20factura%20electronica.%20${doc_invoice}`;
+					        $("#" + whatsappId).attr("href", url_whatsapp);
+					    });
+
+					    return actions;
+					}
+
+
+				}
+
+		    ],
+		    lengthMenu: [20, 30, 40, 50, 80, 100],
+		    language: {
+		        url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+		    },
+		    drawCallback: function () {
+		        console.log('🔄 Tabla actualizada con nueva data');
+		    }
+		});
+		
+		$(document).on('click', '.send_email_invoice', function () {
+		    const id = this.id;
+		    const type_document = {{ request.session.type_document|default:0 }};
+		    const branch_id = {{ request.session.branch_id|default:0 }};
+
+		    if (type_document != 99) {
+		        const data = {
+		            number: id,
+		            branch_id: branch_id,
+		            type_document: type_document
+		        };
+
+		        $.ajax({
+		            url: "{% url 'Send_Email_Invoice' %}",
+		            method: "POST",
+		            headers: {
+					    "X-Requested-With": "XMLHttpRequest",
+					    "X-CSRFToken": "{{ csrf_token }}"
+					},
+		            data: data,
+		            success: function (response) {
+		                console.log(response);
+						if (response.status === 'success') {
+						    if (response.data.result) {
+						        Swal.fire({
+						            icon: 'success',
+						            title: 'Correo enviado',
+						            text: 'La factura ha sido enviada correctamente.'
+						        });
+						    } else {
+						        Swal.fire({
+						            icon: 'error',
+						            title: 'Oops... Algo ha salido mal',
+						            text: response.data.message || 'No se pudo enviar el correo.'
+						        });
+						    }
+						} else {
+						    Swal.fire({
+						        icon: 'error',
+						        title: 'Error',
+						        text: response.error || 'Error desconocido al enviar el correo.'
+						    });
+						}
+
+		            },
+		            error: function (xhr, status, error) {
+		                console.error("Error AJAX:", error);
+		                Swal.fire({
+		                    icon: 'error',
+		                    title: 'Error de red',
+		                    text: 'Hubo un problema al enviar la solicitud.'
+		                });
+		            }
+		        });
+		    }
+		});
+
+
+		$(document).on('click', '.view_pdf', function () {
+			showPreloaderModal()
+		    const id = this.id;
+		    const type_document = {{ request.session.type_document|default:0 }};
+		    const branch_id = {{ request.session.branch_id|default:0 }};
+
+		    const data = {
+		        number: id,
+		        branch_id: branch_id,
+		        type_document: type_document
+		    };
+		    console.log(data)
+
+		    $.ajax({
+		        url: "{% url 'Create_PDF' %}",
+		        method: "POST",
+		        headers: {
+		            "X-Requested-With": "XMLHttpRequest",
+		            "X-CSRFToken": "{{ csrf_token }}"
+		        },
+		        data: data,
+		        success: function (response) {
+		            console.log(response);
+		            hidePreloaderModal()
+
+		            if (response.data.result) {
+		                window.open(response.data.url, '_blank');
+		            } else {
+		                Swal.fire({
+		                    icon: 'error',
+		                    title: 'Error',
+		                    text: response.message || 'Error desconocido al crear el PDF.'
+		                });
+		            }
+		        },
+		        error: function (xhr, status, error) {
+		            console.error("Error AJAX:", error);
+		            Swal.fire({
+		                icon: 'error',
+		                title: 'Error de red',
+		                text: 'Hubo un problema al enviar la solicitud.'
+		            });
+		        }
+		    });
+		});
+
+
+	    $(".select_branch").change(function(){
+	    	branch_id = $(this).val()
+	    	table.ajax.reload();
+	    })
+
+	});
+</script>
+{% endblock %}

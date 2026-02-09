@@ -1,0 +1,308 @@
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+{% load format_filters %}
+<style>
+
+    @media print {
+        #footer {
+            page-break-inside: avoid;
+            margin-top: 10px;
+        }
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: Roboto, sans-serif;
+    }
+
+    html, body {
+        width: 100%;
+        vertical-align: baseline;
+    }
+
+    body {
+        line-height: 1.4;
+        font-size: 13px;
+        background: #fff;
+        color: #000;
+    }
+
+    #container {
+        width: 95%;
+        margin: 0px;
+        padding: 1px;
+        text-align: center !important;
+    }
+
+    #header {
+        text-align: center;
+    }
+
+    #header > #reference p {
+        margin: 2px 0;
+        font-size: 15px;
+    }
+
+    .table {
+        width: 100%;
+        font-size: 14px;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        border: 1px solid #4f4e4e;
+        padding: 3px;
+        text-align: left;
+    }
+
+    .table th {
+        font-weight: bold;
+    }
+
+    .table td {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .vertical-align-top {
+        vertical-align: top;
+    }
+
+    .text-right {
+        text-align: right !important;
+    }
+
+    #empresa-header {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    #empresa-header1 {
+        text-align: center;
+        font-size: 15px;
+    }
+
+    .table tr:nth-child(odd) td {
+        background-color: rgb(248, 249, 250);
+    }
+</style>
+
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="reference">
+                <!-- <p>DOCUMENTO EQUIVALENTE ELECTRONICO DEL TIQUETE DE MAQUINA REGISTRADORA CON SISTEMA P.O.S.</p> -->
+                <p>
+                    *** DOCUMENTO DE COTIZACIÓN ***
+                </p>
+                <p style="font-weight: bold;">Fecha Emisión: {{quote.date}}</p>
+            </div>
+        </div>
+
+        <div id="empresa-header">
+            {{company.business_name|title}}<br>
+            Sucursal - {{branch.business_name|title}}
+        </div>
+        <div id="empresa-header1">
+            {% if quote.type_document != 99 %}
+                <p style="font-size: 14px">
+                    {% if company.type_regime == 1 %}
+                        Responsable de IVA - Obligación: Declarar y Pagar
+                    {% else %}
+                        No Responsable de IVA
+                    {% endif %}
+                </p>
+            {% endif %}
+            <p style="font-size: 14px">Tipo Documento ID: {% if company.type_document_identification == 3 %}Cédula de Ciudadanía{% else %}NIT{% endif %}</p>
+            <p style="font-size: 14px">
+                {% if company.type_document_identification == 3 %}Cédula de Ciudadanía: {{company.documentI}}{% else %}NIT: {{company.documentI}}{% endif %}
+            </p>
+            <p style="font-size: 14px">{{branch.municipality|title}} - Colombia</p>
+            <p style="font-size: 14px">{{branch.address}}</p>
+            <p style="font-size: 14px">Teléfono - {{branch.phone_1}} {% if branch.phone_2 %} - {{branch.phone_2}}{% endif %}</p>
+            <p style="font-size: 14px">E-mail: {{branch.email}}</p><br>
+            <p style="font-size: 14px; font-weight: bold;">
+                COTIZACIÓN: {{quote.prefix}} - {{quote.number}}
+            </p>
+        </div><br>
+
+
+        <table class="table">
+            <tr>
+                <td style="text-align: left; font-size: 14px;">CC o NIT: {{customer.identification_number}}</td>
+                <td style="text-align: left; font-size: 14px;">Forma de Pago: N/A</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Cliente: {{customer.name}}</td>
+                <td style="text-align: left; font-size: 14px;">Medio de Pago:  N/A  </td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Dirección: 
+                    {% if customer.identification_number == 222222222222 %}
+                        {{branch.address}}
+                    {% else %}
+                        {{customer.address}}
+                    {% endif %}
+                </td>
+                <td style="text-align: left; font-size: 14px;">Plazo Para Pagar:  N/A</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-size: 14px;">Teléfono: 
+                    {% if customer.identification_number == 222222222222 %}
+                        {{branch.phone_1}}
+                    {% else %}
+                        {{customer.phone}}
+                    {% endif %}
+                </td>
+                <td style="text-align: left; font-size: 14px;">Fecha Vencimiento:  N/A</td>
+            </tr>
+        </table>
+        <br>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center w-80">Descripción</th>
+                    <th class="text-center">Cant</th>
+                    <th class="text-center">Val. Unit</th>
+                    <th class="text-center">Val. IVA</th>
+                    <th class="text-center">ICO</th>
+                    <th class="text-center">SubTotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in details %}
+                    <tr>
+                        <td style="text-align: left;">{{i.name}}</td>
+                        <td class="text-right">{{i.quantity}}</td>
+                        <td class="text-right">${{i.cost|miles}}</td>
+                        <td class="text-right">${{i.valtax|miles}}</td>
+                        <td class="text-right">{{i.ico|miles}}</td>
+                        <td class="text-right">${{i.subtotal|miles}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <div class="container-fluid">
+            <div class="row">
+                <div style="width:100%;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="text-align: center !important;">Impuestos</th>
+                                <th class="text-center" style="text-align: center !important;">Totales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                <!-- Tabla de Impuestos -->
+                                <table class="table" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th class="text-center">Base</th>
+                                            <th class="text-center">%</th>
+                                            <th class="text-center">Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in list_taxes %}
+                                            <tr>
+                                                <td style="text-align: left !important;">{{ i.name }}</td>
+                                                <td class="text-right">{{ i.taxable_amount|miles }}</td>
+                                                <td class="text-right">{{ i.percent }}%</td>
+                                                <td class="text-right">{{ i.tax_amount|miles }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% if other_charges %}                                    
+                                    <h4 style="text-align: center !important;" class="mt-3">Otros cargos</h6>
+                                    <table class="table" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Concepto</th>
+                                                <th class="text-center">Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for i in other_charges %}
+                                                <tr>
+                                                    <td style="text-align: left !important;">{{i.note}}</td>
+                                                    <td class="text-right">${{ i.amount|miles }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            </td>
+
+                                <td style="width: 50%;">
+                                    <table class="table" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Tipo</th>
+                                                <th class="text-center">Base</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Base:</td>
+                                                <td class="text-right">${{totals.subtotals|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Impuestos:</td>
+                                                <td class="text-right">${{totals.tax|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>ICO:</td>
+                                                <td class="text-right">${{totals.ico|miles}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total Cotización:</td>
+                                                <td class="text-right">${{totals.totals|miles}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <br>
+        <div>
+            <p style="font-size: 12px; text-align:left;">
+               <strong> Nota: </strong>&nbsp;<span style="color: red;">{% if quote.note %}{{quote.note}}{% else %}No hay observaciones.{% endif %}</span>
+            </p>
+        </div>
+        <br>
+        <div>
+            <p style="font-size: 12px; text-align:center;">
+                <strong>Importante:</strong><br>
+                Este documento corresponde a una <strong>COTIZACIÓN</strong> generada por nuestro sistema de gestión.  
+                No constituye factura de venta ni genera obligaciones fiscales o contables.<br>
+                Su validez está limitada a los precios y condiciones aquí especificados, los cuales pueden variar sin previo aviso.<br>
+            </p>
+        </div>
+
+
+        <div id="footer">
+            <hr style="margin-bottom: 2px;">
+            <p id='mi-texto' style="font-size: 12px; text-align:center;">
+                COTIZACIÓN: {{quote.prefix}} - {{quote.number}}
+                <br> 
+                Fecha y Hora de Generación: {{quote.date}} - {{quote.time}}
+            </p>
+            <p id='mi-texto-1' style="font-size: 12px; text-align:center;">Cotización generada por Evansoft</p>
+        </div>
+    </div>
+</body>

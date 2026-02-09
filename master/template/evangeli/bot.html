@@ -1,0 +1,133 @@
+{% extends '../base.html' %}
+{% load static %}
+{% block content %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'evangeli/style.css' %}">
+<div id="pdf-preview" style="margin-bottom: 10px; display: none;">
+    <i class="fas fa-file-pdf" style="font-size: 24px; color: red;"></i>
+    <span id="pdf-name" style="margin-left: 5px;"></span>
+</div>
+<input type="file" id="document" hidden accept="
+    application/pdf,
+    text/plain,
+    text/html,
+    text/csv
+" />
+
+<!-- <div class="demo-widget">
+    <div class="demo-widget-body">
+        <div id="chatbot">
+            <div id="chatbot-message">
+            </div>
+            <form action="">
+                <div class="input-group">
+                    <input id="chatbot-input" type="text" class="form-control" placeholder="Escribe un mensaje..." autofocus autocomplete="off">
+                    <div class="input-group-btn">
+                        <button id="chatbot-submit" class="btn btn-default" type="submit">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                        <button id="audio-button" class="btn btn-secondary" type="button">
+                            <i class="fas fa-microphone"></i> Audio
+                        </button>
+                        <button id="pdf-button" class="btn btn-success upload_document" type="button">
+                            <i class="fas fa-file-pdf"></i>&nbsp; Documento
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> -->
+
+
+<div class="demo-widget">
+    <div class="demo-widget-body">
+        <div id="chatbot">
+            <div id="chatbot-message"></div>
+            <form action="">
+                <div class="input-group">
+                    <input id="chatbot-input" type="text" class="form-control" placeholder="Escribe un mensaje..." autofocus autocomplete="off">
+                    
+                    <!-- Botón grande con íconos para pantallas grandes -->
+                    <div class="input-group-btn d-none d-md-flex">
+                        <button id="chatbot-submit" class="btn btn-default" type="submit">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                        <button id="audio-button" class="btn btn-secondary" type="button">
+                            <i class="fas fa-microphone"></i> Audio
+                        </button>
+                        <button id="pdf-button" class="btn btn-success upload_document" type="button">
+                            <i class="fas fa-file-pdf"></i>&nbsp; Documento
+                        </button>
+                    </div>
+
+                    <!-- Menú oculto por defecto para móviles -->
+                    <div class="mobile-options d-md-none">
+                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <button class="dropdown-item" id="chatbot-submit-m" type="submit">
+                                <i class="fas fa-paper-plane"></i> Enviar
+                            </button>
+                            <button class="dropdown-item" id="audio-button-m" type="button">
+                                <i class="fas fa-microphone"></i> Audio
+                            </button>
+                            <button class="dropdown-item upload_document" id="pdf-button-m" type="button">
+                                <i class="fas fa-file-pdf"></i> Documento
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+{% block script %}
+    <script>
+        let customer_id = {{request.session.customer_id|safe}}
+        let branch_id = {{request.session.branch_id|safe}}
+        let employee_id = {{request.session.pk_employee|safe}}
+        let type_document = {{request.session.type_document|safe}}
+        limited_inventory = {{request.session.limited_inventory|safe}}
+        url_product = '{% url "Get_Product_By_Name" %}'
+        let url_customer = '{% url "Get_Customer_By_Name" %}'
+        let send_dian = "{% url 'Send_Dian' %}"
+        let list_product_invoice = []
+        let list_product_tmp = []
+        let product_id = null
+        let type_price = null
+        let invoice = new Object()
+        let url_all_inventory = "{% url 'Get_All_Inventory' %}"
+        let reserved = "{% url 'Reserved' %}"
+        let return_product = "{% url 'Return_Product' %}"
+        let print_invoice = "{{ request.session.url_app }}/invoice/Print_Invoice/";
+        const data_customer = {{ data_customer|safe }};
+        const customerText = JSON.stringify(data_customer, null, 2);
+
+
+        geminiMemory.push(
+            {
+                role: "user",
+                parts: [
+                    { text: customerText }
+                ]
+            },
+            {
+                role: "user",
+                parts: [
+                    {
+                        text: "Estos son los clientes actuales que tiene la compañía"
+                    },
+                ]
+            }
+        );
+    </script>
+    <script src="{% static 'invoice/offline.js' %}"></script>
+{% endblock %}

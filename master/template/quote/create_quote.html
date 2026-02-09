@@ -1,0 +1,377 @@
+{% extends '../base.html' %}
+{% load static %}
+{% block content %}
+<style>
+	.subtitle{
+		font-size: 20px;
+	}
+
+	.selected {
+	    background-color: #007bff;
+	    color: white;
+	}
+</style>
+
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-6 col-12">
+		<div class="title">
+			<h4 class=" text-danger">Cotización N° <span class="number_quote"></span></h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-6 col-12 text-right">
+		<div class="row justify-content-end">
+			<div class="col-md-12 col-sm-12 text-danger subtitle">
+				<span class="days_resolution"></span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-3 col-sm-12">
+		<div class="form-group">
+			<label>Client</label>
+			<select id="clientSelect" class="custom-select2 form-control" name="state" style="width: 100%; height: 38px;"></select>
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Fecha</label>
+			<input type="date" class="form-control" id="fecha" value="">
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-12">
+		<div class="form-group">
+			<label>Metodos de Pagos</label>
+			<select id="paymentmethod" class="custom-select form-control" name="state" style="width: 100%;">
+				<option value="10">Efectivo</option>
+				<option value="30">Crédito</option>
+				<option value="47">Transferencia Debito</option>
+				<option value="45">Transferencia Crédito</option>
+				<option value="49">Tarjeta Debito</option>
+				<option value="48">Tarjetas Crédito</option>
+			</select>
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Stock</label>
+			<input type="text" disabled class="form-control stock">
+		</div>
+	</div>
+</div>
+
+
+<div class="row">
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Precio 1</label>
+			<input type="text" name="price1" disabled class="form-control price1">
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Precio 2</label>
+			<input type="text" name="price2" disabled class="form-control price2">
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Precio 3</label>
+			<input type="text" name="price3" disabled class="form-control price3">
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Precio 4</label>
+			<input type="text" name="price4" disabled class="form-control price4">
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Precio 5</label>
+			<input type="text" name="price5" disabled class="form-control price5">
+		</div>
+	</div>
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Precio 6</label>
+			<input type="text" name="price6" disabled class="form-control price6">
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-4 col-sm-12">
+		<div class="form-group">
+			<label>Producto</label>
+			<input type="text" class="form-control" id="buscador_productos" autofocus placeholder="buscador de productos">
+		</div>
+	</div>
+	<div class="col-md-1 col-sm-12">
+		<div class="form-group">
+			<label>Cantidad</label>
+			<input type="number" class="form-control quantity">
+		</div>
+	</div>
+	{% if request.session.discount %}
+		<div class="col-md-2 col-sm-12">
+			<div class="form-group">
+				<label>Descuento</label>
+				<input type="text" value="0" class="form-control discount">
+			</div>
+		</div>
+	{% endif %}
+	<div class="col-md-1 col-sm-12">
+		<div class="form-group">
+			<label>Precio</label>
+			<input type="number" class="form-control type_price">
+		</div>
+	</div>
+	<!-- <div class="col-md-1 col-sm-12">
+		<div class="form-group">
+			<label>Discount</label>
+			<input type="number" class="form-control type_price">
+		</div>
+	</div> -->
+	<div class="col-md-2 col-sm-12">
+		<div class="form-group">
+			<label>Total</label>
+			<input type="text" disabled style="text-align: right;" class="form-control total_invoice">
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<table class="table table-bordered">
+	  <thead>
+	    <tr>
+	      <th>Código</th>
+	      <th>Descripción</th>
+	      <th>Cantidad</th>
+	      <th>Costo</th>
+	      <th>IVA</th>
+	      <th>ICO</th>
+	      <th>Dcto</th>
+	      <th>SubTotal</th>
+	      <th>Neto</th>
+	      <th>Acción</th>
+	    </tr>
+	  </thead>
+	  <tbody class="row_quote"></tbody>
+	</table>
+</div>
+
+<style>
+    .obser {
+        height: auto;
+        min-height: 50px;
+        max-height: 100px;
+        overflow-y: auto;
+        resize: none;
+    }
+
+    .contenedor {
+        align-items: flex-start !important;
+    }
+
+    .observa {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 100%;
+    }
+</style>
+
+
+<div class="row contenedor">
+	<div class="col-md-4 col-sm-12">
+		<div class="form-group observa">
+			<label>Observaciones</label>
+			<textarea class="form-control obser note" placeholder="Escriba una nota" rows="2"></textarea>
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-12 ml-auto">
+		<table class="table table-bordered">
+		  <tbody class="row_totales">
+		    <tr>
+		      <th>Neto:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>Subtotal:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>Impuestos:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>ICO:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>Descuentos:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>Otros Cargos:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>Total:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>Dcto Factura:</th>
+		      <th>0</th>
+		    </tr>
+		    <tr>
+		      <th>Total - Dcto Factura:</th>
+		      <th>0</th>
+		    </tr>
+		  </tbody>
+		</table>
+	</div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="search_product" tabindex="-1" aria-labelledby="search_productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Buscador de productos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Filtro de búsqueda -->
+                <div class="mb-3">
+                    <input type="text" id="filtroProductos" class="form-control" autocomplete="off" placeholder="Escriba al menos 2 letras del nombre del producto...">
+                </div>
+
+                <!-- Contenedor con scroll -->
+                <div style="max-height: 700px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Precio 1</th>
+                                <th>Precio 2</th>
+                                <th>Precio 3</th>
+                                <th>Precio 4</th>
+                                <th>Precio 5</th>
+                                <th>Precio 6</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaproductos">
+                            <!-- Las filas serán agregadas dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="paginacion" class="text-center mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalOtherCharges" tabindex="-1" role="dialog" aria-labelledby="modalFondoSPLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title text-white" id="modalFondoSPLabel">
+          Otros Cargos
+          <i class="ml-2 fas fa-info-circle" data-toggle="tooltip" data-placement="right"
+             title="Incluye cargos o descuentos adicionales aplicables a la factura.">
+          </i>
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true" class="text-white">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="fondosp_container">
+          
+          <!-- Indicador de cargo o descuento -->
+          <div class="form-group">
+            <label for="charge_indicator">¿Es un cargo?</label>
+            <select class="form-control" id="charge_indicator">
+              <option value="">Seleccione una opción</option>
+              <option value="true">Sí (cargo)</option>
+              <option value="false">No (descuento)</option>
+            </select>
+          </div>
+
+          <!-- Motivo o tipo del cargo/descuento -->
+          <div class="form-group">
+            <label for="allowance_charge_reason">Motivo del cargo o descuento</label>
+            <input type="text" class="form-control" id="allowance_charge_reason" placeholder="Ej. Domicilio o descuento al total de la factura">
+          </div>
+
+          <!-- Monto -->
+          <div class="form-group">
+            <label for="amount_charges">Valor</label>
+            <input type="text" step="0.01" class="form-control number-format monto" id="amount_charges" placeholder="Ej. 60000.00">
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="set_other_charges">Agregar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
+{% block script %}
+
+<script>
+
+	let customer_id = {{request.session.customer_id|safe}}
+	let branch_id = {{request.session.branch_id|safe}}
+	let employee_id = {{request.session.pk_employee|safe}}
+	let type_document = {{request.session.type_document|safe}}
+	let limited_inventory = {{request.session.limited_inventory|safe}}
+	let url_customer = '{% url "Get_Customer_By_Name" %}'
+	let save_quote = "{% url 'Send_Quote' %}"
+	let list_product_quote = []
+	let list_product_tmp = []
+	let product_id = null
+	let type_price = null
+	let quote = new Object()
+	let reserved = "{% url 'Reserved' %}"
+	let return_product = "{% url 'Return_Product' %}"
+	let finalizado = "{% url 'Finalizado' %}"
+	let scan_inventory = "{% url 'Scan_Inventory' %}"
+	let return_one_product = "{% url 'Return_One_Product' %}"
+	let loan = "{% url 'Loan' %}"
+	let print_quote = "{{ request.session.url_app }}/quote/Print_Quote/";
+	let apply_discount = "{{request.session.discount}}"
+	let url_websocket = "{{request.session.url_websokect}}"
+
+</script>
+<script src="{% static 'db/db.js' %}"></script>
+<script src="{% static 'db/tables.js' %}"></script>
+<script src="{% static 'db/insert.js' %}"></script>
+<script src="{% static 'db/select.js' %}"></script>
+<script src="{% static 'db/update.js' %}"></script>
+<script src="{% static 'db/delete.js' %}"></script>
+
+<script src="{% static 'quote/save_invoice.js' %}"></script>
+<script src="{% static 'quote/test.js' %}"></script>
+
+
+{% endblock %}

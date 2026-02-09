@@ -1,0 +1,149 @@
+@media (max-width: 860px) {
+	body {
+		padding: 0;
+		margin: 0;
+		overflow-x: hidden;
+	}
+
+	#main-demo-body,
+	.demo-widget,
+	.demo-widget-body {
+		width: 100% !important;
+		margin: 0;
+		padding: 10px;
+		box-sizing: border-box;
+	}
+
+	#chatbot #chatbot-message {
+	    height: 40vh !important;
+	    font-size: 13px;
+	    margin: 0 0 10px 0;
+	    border-radius: 0;
+	    overflow-y: auto;
+	}
+
+	#chatbot .input-group {
+		flex-direction: column;
+	}
+
+	#chatbot-input {
+		width: 100%;
+		font-size: 16px;
+		margin-bottom: 8px;
+	}
+
+	.input-group-btn {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	.input-group-btn .btn {
+		flex: 1;
+		font-size: 14px;
+		margin: 0 2px;
+	}
+
+	.client-list {
+		padding-left: 10px;
+		margin-top: 5px;
+	}
+
+	.client-list li {
+		font-size: 15px;
+		padding: 8px 12px;
+	}
+
+	.cliente-datos {
+		line-height: 1.4;
+		font-size: 14px;
+	}
+
+	.mobile-options {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 8px;
+	}
+
+	.dropdown-menu button {
+		font-size: 14px;
+		padding: 8px 10px;
+	}
+}
+
+
+#chatbot #chatbot-message {
+	padding: 0;
+	border: 1px #d7d7d7 solid;
+	height: 800px;
+	border-radius: 4px;
+	margin: 0 0 12px 0;
+	font-size: 18px;
+	overflow: hidden;
+	overflow-y: auto
+}
+
+#chatbot #chatbot-message p {
+	padding: 6px 12px;
+	color: #666;
+	margin: 0
+}
+
+#chatbot #chatbot-message p.from-bot {
+	color: #0af
+}
+
+#chatbot #chatbot-message p.from-bot .user {
+	color: #0af
+}
+
+#chatbot #chatbot-message p:nth-child(even) {
+	background-color: #f7fcff
+}
+
+#chatbot #chatbot-message .user {
+	font-weight: bold;
+	color: #333
+}
+
+#chatbot #chatbot-message .message {
+	font-style: italic;
+	color: #bfbfbf
+}
+
+#chatbot #chatbot-message .message .glyphicon {
+	font-size: 10px
+}
+
+#chatbot .input-group-btn .btn {
+	border-left: 0
+}
+
+.client-list {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.client-list li {
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.cliente-datos {
+    line-height: 1.6;
+}
+
+.mobile-options {
+    margin-left: 5px;
+}
+.dropdown-menu button {
+    width: 100%;
+    text-align: left;
+}
+
+
+

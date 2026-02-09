@@ -1,0 +1,487 @@
+{% extends '../base.html' %}
+{% block content %}
+<div class="row">
+	<div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30">
+		<div class="pd-20 card-box height-100-p">
+			<div class="profile-photo">
+				<a href="javascript:void(0);" data-toggle="modal" data-target="#modal" class="edit-avatar change_photo_pencil"><i class="fa fa-pencil"></i></a>
+				<img src="{{data.logo}}" alt="" class="avatar-photo" style="width: 100%; height: 80%;">
+			</div>
+			<h5 class="text-center h5 mb-0">{{data.business_name|title}}</h5><br>
+			<div class="profile-info">
+				<h5 class="mb-20 h5 text-blue">Información de contacto</h5>
+				<ul>
+					<li>
+						<span>Documento I:</span>
+						{{data.documentI}}-{{data.dv}}
+					</li>
+					<li>
+						<span>Correo Electrónico:</span>
+						{{data.email}}
+					</li>
+					<li>
+						<span>Número de Tlf:</span>
+						{{data.phone}}
+					</li>
+					<li>
+						<span>País - Ciudad:</span>
+						Colombia - {{data.municipality_name}}
+					</li>
+					<li>
+						<span>Dirección:</span>
+						{{data.address}}
+					</li>
+					<li>
+						<span>Estatus DIAN:</span>
+						{% if data.production %}
+							Esta habilitado para<br>enviar documento electrónicos.
+						{% else %}
+							No esta habilitado para<br>enviar documento electrónicos.
+						{% endif %}
+					</li>
+					<li>
+						<span>Llave DIAN:</span>
+						{{data.token}}
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 mb-30">
+		<div class="card-box height-100-p overflow-hidden" style="min-height: 180px;">
+			<div class="profile-tab height-100-p">
+				<div class="tab height-100-p">
+					<ul class="nav nav-tabs customtab" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" data-toggle="tab" href="#tasks" role="tab">Configuración</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#branch" role="tab">Crear Sucursal</a>
+						</li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane fade show active" id="tasks" role="tabpanel">
+							<div class="pd-20 profile-task-wrap">
+								<div class="container pd-0">
+									<form class="data_company">
+										<div class="row">
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group">
+													<label>N° de Identificación</label>
+													<input type="number" value="{{data.documentI}}" name="documentI" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-8 col-sm-12">
+												<div class="form-group">
+													<label>Razón Social</label>
+													<input type="text" value="{{data.business_name}}" name="business_name" class="form-control">
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6 col-sm-12">
+												<div class="form-group">
+													<label>Email</label>
+													<input type="text" value="{{data.email}}" name="email" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-6 col-sm-12">
+												<div class="form-group">
+													<label>Dirección</label>
+													<input type="text" value="{{data.address}}" name="address" class="form-control">
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group">
+													<label>Teléfono</label>
+													<input type="text" value="{{data.phone}}" name="phone" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-8 col-sm-12">
+												<div class="form-group">
+											        <label for="municipality" class="col">Municipio</label>
+											        <select id="municipality" name="municipality_id" class="custom-select2 required col">
+											            <option value="{{data.municipality}}">{{data.municipality_name}}</option>
+											            {% for i in municipality %}
+											                {% if i.code != data.municipality %}
+											                	<option value="{{i.code}}">{{i.name}}</option>
+											                {% endif %}
+											            {% endfor %}
+											        </select>
+											        <small class="error-message text-danger"></small>
+											    </div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-8 col-sm-12">
+												<div class="form-group">
+											        <label for="type_liability">Tipo de Responsabilidad</label>
+											        <select id="type_liability" name="type_liability_id" class="custom-select required">
+											            <option value="{{data.type_liability}}">{{data.type_liability_name}}</option>
+											            {% for i in type_liability %}
+											                {% if i.code != data.type_liability %}
+											                	<option value="{{i.code}}">{{i.name}}</option>
+											                {% endif %}
+											            {% endfor %}
+											        </select>
+											        <small class="error-message text-danger"></small>
+											    </div>
+											</div>
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group">
+											        <label for="type_regime">Tipo de Régimen</label>
+											        <select id="type_regime" name="type_regime_id" class="custom-select required">
+											            <option value="{{data.type_regime}}">{{data.type_regime_name}}</option>
+											            {% for i in type_regime %}
+											            	{% if i.code != data.type_regime %}
+											                	<option value="{{i.code}}">{{i.name}}</option>
+											                {% endif %}
+											            {% endfor %}
+											        </select>
+											        <small class="error-message text-danger"></small>
+											    </div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6 col-sm-12">
+												<div class="form-group">
+											        <label for="type_organization">Tipo de Organización</label>
+											        <select id="type_organization" name="type_organization_id" class="custom-select required">
+											            <option value="{{data.type_organization}}">{{data.type_organization_name}}</option>
+											            {% for i in type_organization %}
+											            	{% if i.code != data.type_organization %}
+											                	<option value="{{i.code}}">{{i.name}}</option>
+											                {% endif %}
+											            {% endfor %}
+											        </select>
+											        <small class="error-message text-danger"></small>
+											    </div>
+											</div>
+											<div class="col-md-6 col-sm-12">
+												<div class="form-group">
+											        <label for="type_document_identification">Tipo de Documento</label>
+											        <select id="type_document_identification" name="type_document_identification_id" class="custom-select required">
+											            <option value="{{data.type_document_identification}}">{{data.type_document_identification_name}}</option>
+											            {% for i in type_document_identification %}
+											            	{% if i.code != data.type_document_identification %}
+											                	<option value="{{i.code}}">{{i.name}}</option>
+											                {% endif %}
+											            {% endfor %}
+											        </select>
+											        <small class="error-message text-danger"></small>
+											    </div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col">
+												<a class="btn btn-primary save_company" href="javascript:void(0);" role="button">Actualizar Compañia</a>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+							<div class="d-none d-md-block" style="height: 180px;"></div>
+						</div>
+						<div class="tab-pane fade" id="branch" role="tabpanel">
+							<div class="pd-20 profile-task-wrap">
+								<div class="container pd-0">
+									<form class="data_branch">
+										<div class="row">
+											<div class="col-md-6 col-sm-12">
+												<div class="form-group">
+													<label>Razón Social</label>
+													<input type="text" name="business_name" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-6 col-sm-12">
+												<div class="form-group">
+													<label>Dirección</label>
+													<input type="text" name="address" class="form-control">
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-5 col-sm-12">
+												<div class="form-group">
+													<label>Email</label>
+													<input type="email" placeholder="{{data.email}}" name="email_branch" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Contraseña email</label>
+													<input type="text" placeholder="a4625e4885e76ac190d6ca" name="pswwd" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group">
+													<label>Registro Mercantil(opcional)</label>
+													<input type="text" placeholder="0000000-00" name="merchant_registration" class="form-control">
+												</div>
+											</div>
+											
+										</div>
+										<div class="row">
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Teléfono</label>
+													<input type="number" placeholder="{{data.phone}}" name="phone_1" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Valor de Apertura</label>
+													<input type="text" placeholder="1234567" name="opening_balance" class="form-control">
+												</div>
+											</div>
+											<div class="col-md-2 col-sm-12">
+												<div class="form-group">
+													<label>Limite de Stock</label>
+													<input type="number" placeholder="15" name="limited_inventory" class="form-control">
+												</div>
+											</div>
+											<div class="col-4">
+												<div class="form-group">
+											        <label for="municipality_id" class="col">Municipio</label>
+											        <select id="municipality_id" name="municipality_id" class="custom-select col">
+											            {% for i in municipality %}
+											                <option value="{{i.code}}">{{i.name}}</option>
+											            {% endfor %}
+											        </select>
+											        <small class="error-message text-danger"></small>
+											    </div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col">
+												<a class="btn btn-primary create_branch" href="javascript:void(0);" role="button">Crear Sucursal</a>
+											</div>
+										</div>
+										<hr>
+										<h5 class="mb-20 h5 text-blue">Resolución Inicial</h5>
+										<div class="row">
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Prefijo</label>
+													<input type="text" value="SETP" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Resolutión</label>
+													<input type="text" value="18760000001" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Desde</label>
+													<input type="text" value="990000000" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Hasta</label>
+													<input type="text" value="995000000" disabled class="form-control">
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Fecha Resolución</label>
+													<input type="text" value="2019-01-19" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Fecha Desde</label>
+													<input type="text" value="2019-01-19" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Fecha Hasta</label>
+													<input type="text" value="2030-01-19" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-3 col-sm-12">
+												<div class="form-group">
+													<label>Tipo Documento</label>
+													<input type="text" value="Factura de venta" disabled class="form-control">
+												</div>
+											</div>
+
+										<hr>
+										<h5 class="mb-20 h5 text-blue">Tipo de Licencia</h5>
+										<div class="row">
+											<div class="col-md-4 col-sm-12">
+												<div class="form-group">
+													<label>Nombre</label>
+													<input type="text" value="{{data.license.name}}" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-2 col-sm-12">
+												<div class="form-group">
+													<label>Factura Elec.</label>
+													<input type="text" value="{{data.license.qty_docs_invoice}}" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-2 col-sm-12">
+												<div class="form-group">
+													<label>Nómina</label>
+													<input type="text" value="{{data.license.qty_docs_payroll}}" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-2 col-sm-12">
+												<div class="form-group">
+													<label>Evento Radian</label>
+													<input type="text" value="{{data.license.qty_docs_radian}}" disabled class="form-control">
+												</div>
+											</div>
+											<div class="col-md-2 col-sm-12">
+												<div class="form-group">
+													<label>Doc. Sop.</label>
+													<input type="text" value="{{data.license.qty_docs_ds}}" disabled class="form-control">
+												</div>
+											</div>
+										</div>
+									</form>
+
+								</div>
+							</div>
+						</div>
+						<!-- Setting Tab End -->
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+
+<a href="javascript:void(0);" class="btn-block change_photo" hidden data-toggle="modal" data-target="#Medium-modal" type="button">
+	<img src="vendors/images/modal-img2.jpg" alt="modal">
+</a>
+<div class="modal fade" id="Medium-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="myLargeModalLabel">Cambiar Logo</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			</div>
+			<div class="modal-body">
+				<div class="input-group custom">
+					<div class="custom-file">
+						<input type="file" class="custom-file-input logo" id="logo-input" accept="image/*">
+						<label class="custom-file-label">Selecciona una foto</label>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				<button type="button" class="btn btn-primary" id="upload-logo-btn">Actualizar</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block script %}
+	<script>
+		$(document).ready(function(){
+
+			$(".change_photo_pencil").click(function(){
+				$(".change_photo").click()
+			})
+
+
+			$('#upload-logo-btn').click(function () {
+				let input = $('#logo-input')[0];
+				if (input.files.length === 0) {
+					Notification("warning", "Sin archivo", "Por favor selecciona una imagen.", "OK");
+					return;
+				}
+
+				let formData = new FormData();
+				formData.append('logo', input.files[0]);
+
+				$.ajax({
+					url: '{% url "Update_Logo" %}',
+					type: 'POST',
+					data: formData,
+					processData: false,
+					contentType: false,
+					headers: {
+						'X-CSRFToken': '{{ csrf_token }}' // Asegúrate de que estás pasando el token
+					},
+					success: function (response) {
+						if (response.result) {
+							Notification("success", "Logo actualizado", "El logo se actualizó correctamente.", "OK");
+							$('.avatar-photo').attr('src', response.logo_base64);
+							$('#Medium-modal').modal('hide');
+						} else {
+							Notification("error", "Ocurrió un error", response.message, "OK");
+						}
+					},
+					error: function (xhr, status, error) {
+						console.error(xhr.responseText);
+						Notification("error", "Error", "No se pudo subir el logo.", "OK");
+					}
+				});
+			});
+
+			$(".create_branch").click(function () {
+			    let formData = $(".data_branch").serializeArray();
+			    let form = {};
+
+			    formData.forEach(item => {
+			        form[item.name] = item.value;
+			    });
+			    form['by_company'] = true;
+			    form['employee_id'] = "{{request.session.pk_employee}}";
+
+			    console.log(form);
+
+			    $.ajax({
+			        url: "{% url 'Update_Branch' %}",
+			        type: "POST",  // 🚨 Obligatorio porque @require_POST
+			        data: JSON.stringify(form), // 🚨 Enviar como JSON
+			        contentType: "application/json", // 🚨 Indicar que es JSON
+			        headers: {
+			            "X-CSRFToken": "{{ csrf_token }}" // 🚨 Necesario si tienes CSRF habilitado
+			        },
+			        success: function(response) {
+			            console.log(response);
+			            if(response.result){
+			                Notification("success", "Tarea Finalizada", response.message, "OK");
+			            } else {
+			                Notification("error", "Error", response.message, "OK");
+			            }
+			        }
+			    });
+			});
+
+
+
+			$(".save_company").click(function(){
+				let form = $(".data_company").serialize()
+				console.log(form)
+				$.ajax({
+					url: '{% url "Update_Company" %}',
+					data: JSON.stringify(form),
+					success: function(e){
+						console.log(e)
+						if(e.result){
+							location.reload(true)
+						}
+						else{
+							Notification("error", "Oopss.. Algo salió mal.", e.message, "OK")
+						}
+					}
+				})
+			})
+		})
+	</script>
+{% endblock %}

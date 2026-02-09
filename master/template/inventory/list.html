@@ -1,0 +1,437 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	.dataTables_paginate {
+	    overflow-x: auto;
+	    white-space: nowrap;
+	    display: flex;
+	    justify-content: center;
+	}
+
+	.dataTables_paginate .pagination {
+	    flex-wrap: nowrap;
+	}
+
+	@media screen and (max-width: 400px) {
+	    .dataTables_paginate {
+	        font-size: 12px;
+	    }
+	}
+</style>
+<div class="row mb-2">
+	<div class="col-md-2 col-12 mb-2">
+		<div class="title">
+			<h4>Lista de productos</h4>
+		</div>
+	</div>
+	<div class="col-md-10 col-sm-12 text-right">
+		<select class="custom-select col-md-3 col-12 mb-2 branch">
+			<option selected="" value="0">Elija Sucursal</option>
+			{% for i in list_branch %}
+				<option value="{{i.id}}">{{i.business_name}}</option>
+			{% endfor %}
+		</select>
+		<a class="btn btn-success upload_inventory col-md-2 col-12 mb-2" href="javascript:void(0);" role="button">Cargar Inventario</a>
+		<a class="btn btn-danger col-md-2 col-12 mb-2 download_guie_inventory" href="javascript:void(0);" role="button">Descargar Patron</a>
+		<a class="btn btn-warning col-md-2 col-12 mb-2 export_inventory_to_excel" href="javascript:void(0);" role="button">Descargar Inventario</a>
+		<a class="btn btn-primary col-md-2 col-12 mb-2" href="{% url 'Create_Product' %}" role="button">Crear</a>
+	</div>
+</div>
+
+<div class="card-box mb-30 p-2">
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="data-table table table-stripe hover nowrap" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th class="table-plus datatable-nosort">Código</th>
+		                <th>Producto</th>
+		                <th>Caja</th>
+		                <th>Display</th>
+		                <th>Unidades</th>
+		                <th>Marca</th>
+		                <th>Acciones</th>
+		            </tr>
+		        </thead>
+		        <tbody></tbody>
+		    </table>
+		</div>
+	</div>
+</div>
+
+
+
+<!-- Modal para cargar inventario -->
+<div class="modal fade" id="modalUploadInventory" tabindex="-1" role="dialog" aria-labelledby="uploadInventoryLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <form id="formUploadInventory" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadInventoryLabel">Subir Inventario</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="inventoryFile">Selecciona el archivo Excel:</label>
+            <input type="file" class="form-control-file" name="inventory" id="inventoryFile" accept=".xlsx, .xls" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Subir</button>
+          <button type="button" class="btn btn-secondary close_uploadinventory" data-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- Modal Preloader -->
+<div class="modal fade" id="download_inventory" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center">
+      <div class="modal-body">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+          <span class="sr-only">Cargando...</span>
+        </div>
+        <h5 class="mb-0">Estamos obteniendo los datos...</h5>
+        <p class="text-muted mb-0">Por favor espera un momento</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+{% endblock %}
+
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+	$(document).ready(function () {
+		let branch_id = null
+		let table = null
+		$(".branch").change(function () {
+		    branch_id = $(this).val().trim();
+
+		    if (branch_id == 0) {
+		        Swal.fire({
+		            icon: "warning",
+		            title: "Sucursal no seleccionada",
+		            text: "Por favor, seleccione una sucursal para ver el inventario.",
+		            confirmButtonText: "Entendido"
+		        });
+
+		        if ($.fn.DataTable.isDataTable('.table')) {
+		            let table = $('.table').DataTable();
+		            table.clear().draw();
+		        }
+		        return;
+		    }
+
+		    if ($.fn.DataTable.isDataTable('.table')) {
+		        $('.table').DataTable().destroy();
+		    }
+
+		    table = $('.table').DataTable({
+		        responsive: true,
+		        serverSide: true,
+		        processing: true,
+		        searching: true,
+		        pagingType: "simple_numbers",
+		        ajax: {
+		            url: "{% url 'Get_List_Product' %}",
+		            type: "GET",
+		            headers: { "X-Requested-With": "XMLHttpRequest" },
+		            data: function (d) {
+		                d.pk_branch = branch_id;
+		                d.search = d.search || {};
+		                d.search.value = d.search.value || '';
+		            },
+		            dataSrc: function (json) {
+		                console.log("🔹 Respuesta del servidor:", json);
+		                return json.data || [];
+		            }
+		        },
+		        columns: [
+		            { data: "codigo", title: "Código", className: "table-plus" },
+		            { data: "producto", title: "Producto" },
+		            { data: "caja", title: "Caja" },
+		            { data: "display", title: "Display" },
+		            { data: "brand", title: "Marca" },
+		            { data: "unidades", title: "Unidades" },
+		            {
+		                data: null,
+		                title: "Acciones",
+		                render: function (data, type, row) {
+		                    return `
+		                        <div class="dropdown">
+		                            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+		                                <i class="dw dw-more"></i>
+		                            </a>
+		                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+		                                <a class="dropdown-item edit" data-pk="${row.pk}" id="${row.pk}" href="javascript:void(0);"><i class="dw dw-edit2"></i> Editar</a>
+		                                <a class="dropdown-item delete" data-pk="${row.pk}" id="${row.pk}" href="javascript:void(0);"><i class="dw dw-delete-3"></i> Eliminar</a>
+		                            </div>
+		                        </div>`;
+		                }
+		            }
+		        ],
+		        lengthMenu: [10, 20, 30, 40, 50],
+		        language: {
+		            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+		        },
+		        drawCallback: function () {
+		            console.log('🔄 Tabla actualizada con nueva data');
+		        }
+		    });
+		});
+
+		$(document).on("click", ".delete", function () {
+			let id = this.id
+			console.log(id)
+
+			Swal.fire({
+				icon: 'warning',
+				title: '¿Eliminar producto?',
+				text: '¿Está seguro que desea eliminar este producto?',
+				showCancelButton: true,
+				confirmButtonText: 'Sí, eliminar',
+				cancelButtonText: 'Cancelar'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					$.ajax({
+						url: "{% url 'Delete_Inventory' %}",
+						type: "POST",
+						contentType: "application/json",
+						data: JSON.stringify({
+							product_id: id,
+							pk_branch: branch_id
+						}),
+						headers: { "X-CSRFToken": "{{ csrf_token }}" },
+						success: function (response) {
+							console.log("✅ Respuesta del servidor:", response);
+							if (response.result) {
+								Notification("success", "✅ Producto eliminado con éxito.", response.message, "OK");
+								table.ajax.reload();
+							} else {
+								Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+							}
+						},
+						error: function (xhr, status, error) {
+							console.error("🚨 Error en la petición:", status, error);
+							Notification("error", "🚨 Error en la petición", status, "OK");
+						}
+					});
+				}
+			});
+		});
+
+
+
+
+		$(document).on('click', '.edit', function () {
+			console.log(this.id)
+      let code = this.id;
+      let url = `/inventory/Edit/${code}/${branch_id}/`;
+      location.href = url;
+		});
+
+
+
+		$(".upload_inventory").click(function(){
+			$("#modalUploadInventory").modal("show");
+		})
+
+
+		const column_map = {
+		  "Código": "code",
+		  "Nombre": "name",
+		  "Bulto Estático": "bale_static",
+		  "Bulto": "bale",
+		  "Display Estático": "display_static",
+		  "Display": "display",
+		  "Unidad Estática": "unit_static",
+		  "Unidad": "unit",
+		  "IVA": "tax",
+		  "Costo": "cost",
+		  "Precio 1": "price_1",
+		  "Precio 2": "price_2",
+		  "Precio 3": "price_3",
+		  "Precio 4": "price_4",
+		  "Precio 5": "price_5",
+		  "Precio 6": "price_6",
+		  "Descuento (%)": "discount",
+		  "ICO": "ico",
+		  "Activo": "active",
+		  "Marca": "brand",
+		  "Categoría": "category",
+		  "Sucursal": "branch",
+		  "Unidad de Medida": "unit_measures",
+		  "Empleado Responsable": "employee"
+		};
+
+		$("#formUploadInventory").on("submit", function (e) {
+		  e.preventDefault();
+
+		  const fileInput = document.getElementById("inventoryFile");
+		  const file = fileInput.files[0];
+
+		  if (!file) {
+		    Notification("warning", "Archivo no seleccionado", "Por favor seleccione un archivo Excel.", "OK");
+		    return;
+		  }
+
+		  const continueUpload = () => {
+		    const reader = new FileReader();
+		    $(".message_modal").text("Cargando inventario...")
+		    // Mostrar preloader
+		    showPreloaderModal()
+		    $(".close_uploadinventory").click()
+
+		    reader.onload = function (event) {
+		      const data = new Uint8Array(event.target.result);
+		      const workbook = XLSX.read(data, { type: 'array' });
+
+		      const firstSheet = workbook.SheetNames[0];
+		      const worksheet = workbook.Sheets[firstSheet];
+
+		      let jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+		      const translated = jsonData.map(row => {
+		        const newRow = {};
+		        for (const key in row) {
+		          const englishKey = column_map[key];
+		          if (englishKey) {
+		            newRow[englishKey] = row[key];
+		          }
+		        }
+		        newRow["branch_id"] = branch_id;
+		        newRow["excel"] = true;
+		        newRow["employee_id"] = "{{request.session.pk_employee}}";
+		        return newRow;
+		      });
+
+		      console.log("📦 Inventario traducido:", translated);
+
+		      $.ajax({
+		        url: "{% url 'Save_Product' %}",
+		        method: "POST",
+		        contentType: "application/json",
+		        data: JSON.stringify({
+		          data: translated,
+		          branch_id: branch_id
+		        }),
+		        headers: {
+		          "X-CSRFToken": "{{ csrf_token }}"
+		        },
+		        success: function (response) {
+		          hidePreloaderModal();
+		          if (response.result) {
+		          	hidePreloaderModal();
+		          	$("#modalUploadInventory").modal("hide");
+		            Notification("success", "Inventario cargado", response.message, "OK");
+		            fileInput.value = "";
+		            if (branch_id !== null) {
+		              $(".table").DataTable().ajax.reload();
+		            }
+		          } else {
+		            Notification("error", "Error al cargar", response.message, "OK");
+		          }
+		        },
+		        error: function (xhr, status, error) {
+		          hidePreloaderModal();
+		          Notification("error", "Error del servidor", error, "OK");
+		          console.error("🚨 Error:", status, error);
+		        }
+		      });
+		    };
+
+		    reader.readAsArrayBuffer(file);
+		  };
+
+		  if (branch_id === null) {
+		    Swal.fire({
+		      icon: 'question',
+		      title: '¿Aplicar a todas las sucursales?',
+		      text: 'No ha seleccionado una sucursal. ¿Desea subir este inventario para todas las sucursales?',
+		      showCancelButton: true,
+		      confirmButtonText: 'Sí, aplicar a todas',
+		      cancelButtonText: 'Cancelar',
+		      confirmButtonColor: '#3085d6',
+		      cancelButtonColor: '#d33'
+		    }).then((result) => {
+		      if (result.isConfirmed) {
+		        continueUpload();
+		      }
+		    });
+		  } else {
+		    continueUpload();
+		  }
+		});
+
+		// Función para mostrar el modal con el preloader
+		function showPreloaderModal() {
+		  $('#preloaderModal').modal('show');
+		}
+
+		// // Función para ocultar el modal con el preloader
+		function hidePreloaderModal() {
+		  $('#preloaderModal').modal('hide');
+		}
+
+		$(".download_guie_inventory").click(function(){
+			const link = document.createElement("a");
+			link.href = "https://api.evansoft.co/media/inventory.xlsx";
+			link.download = "ventas_reporte.xlsx";
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		})
+
+		$(".export_inventory_to_excel").click(function(){
+			if(branch_id !== null){
+				$("#download_inventory").modal('show')
+				$.ajax({
+					url:"{% url 'Export_Inventory_To_Excel' %}",
+					data: {
+						"branch_id":branch_id
+					},
+					success: function(response){
+						console.log(response)
+						$("#download_inventory").modal('hide')
+						if (response.path_report) {
+							const link = document.createElement("a");
+							link.href = response.path_report;
+							link.download = "ventas_reporte.xlsx"; // Nombre opcional
+							document.body.appendChild(link);
+							link.click();
+							document.body.removeChild(link);
+						} else {
+							alert("No se pudo generar el reporte.");
+						}
+					}
+				})
+			}else{
+				Swal.fire({
+					icon: 'warning',
+					title: 'Sucursal no seleccionada',
+					text: 'Debe seleccionar una sucursal para poder exportar el inventario.',
+					confirmButtonText: 'OK',
+					confirmButtonColor: '#3085d6'
+				});
+			}
+		})
+	});
+</script>
+{% endblock %}

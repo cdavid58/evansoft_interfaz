@@ -1,0 +1,336 @@
+{% extends '../base.html' %}
+{% load format_filters %}
+{% block content %}
+<style>
+  .dataTables_paginate {
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+      justify-content: center;
+  }
+
+  .dataTables_paginate .pagination {
+      flex-wrap: nowrap;
+  }
+
+  @media screen and (max-width: 400px) {
+      .dataTables_paginate {
+          font-size: 12px;
+      }
+  }
+</style>
+<div class="row mb-2">
+  <div class="col-md-6 col-sm-12">
+    <div class="title">
+      <h4>Listado de Nota Crédito</h4>
+    </div>
+  </div>
+  <div class="col-md-6 col-sm-12 text-right">
+    {% if request.session.rols == 'Todos' %}
+      <select id="selectBranch" class="custom-select col-md-3 col-12 mb-2 select_branch">
+        <option value="0" selected disabled>Elija Sucursal</option>
+        {% for i in list_branch %}
+          <option value="{{ i.id }}"{% if i.id == request.session.branch_id %} selected{% endif %}>
+            {{ i.business_name }}
+          </option>
+        {% endfor %}
+      </select>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card-box mb-30 p-2">
+  <div class="pb-20">
+    <div class="table-responsive">
+      <table class="data-table table table-stripe hover nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th class="table-plus datatable-nosort">Factura</th>
+                    <th>Cliente</th>
+                    <th>Factura</th>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  let print_invoice = "{{ request.session.url_app }}/invoice/Print_Invoice/";
+  let branch_id = {{request.session.branch_id|safe}}
+  $(document).ready(function () {
+      if ($.fn.DataTable.isDataTable('.table')) {
+          $('.table').DataTable().destroy();
+      }
+
+      $(document).on("click", ".copy_invoice", function(){
+        let number = this.id
+        console.log(number)
+        let type_document = {{request.session.type_document|safe}}
+        let screenWidth = window.screen.width;
+            let screenHeight = window.screen.height;
+            let windowWidth = 800;
+            let windowHeight = 600;
+            let leftPosition = (screenWidth - windowWidth) / 2;
+            let topPosition = (screenHeight - windowHeight) / 2;
+            let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=${windowWidth},height=${windowHeight},left=${leftPosition},top=${topPosition}`;
+            let printWindow = window.open(print_invoice + number + "/"+type_document, "invoice", params);
+            if (printWindow) {
+          printWindow.onload = function() {
+              printWindow.document.body.style.zoom = "100%";
+              setTimeout(() => {
+                printWindow.print();
+            }, 500);
+
+              printWindow.onafterprint = function() {
+                  printWindow.close();
+              };
+          };
+
+          let checkClose = setInterval(function() {
+              if (printWindow.closed) {
+                  clearInterval(checkClose);
+                  console.log("La ventana de impresión se ha cerrado");
+              }
+          }, 500);
+      }
+      })
+
+      const table = $('.table').DataTable({
+        responsive: true,
+        serverSide: true,
+        processing: true,
+        searching: true,
+        pagingType: "simple_numbers",
+        ajax: {
+            url: "{% url 'Get_List_Credit_Note' %}",
+            type: "GET",
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            data: function (d) {
+                d.branch_id = branch_id;
+                d.search = d.search || {};
+                d.search.value = d.search.value || '';
+            },
+            dataSrc: function (json) {
+                return json.data || [];
+            }
+        },
+        columns: [
+            { data: "credit_note", title: "Nota Crédito", className: "table-plus" },
+            { data: "invoice", title: "Factura" },
+            { data: "customer", title: "Cliente" },
+            { data: "date_only", title: "Fecha" },
+            {
+                data: "total",
+                title: "Total",
+                render: function (data, type, row) {
+                    if (isNaN(data)) return data;
+                    return '$ ' + new Intl.NumberFormat('es-CO', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(data);
+                }
+            },
+            { data: "status", title: "Estado del documento" },
+            {
+                data: null,
+                title: "Acciones",
+                render: function (data, type, row) {
+                    const viewInvoiceUrl = "{% url 'View_Invoice' 0 %}".replace('0', row.id);
+                    return `
+                        <div class="dropdown">
+                            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                                <i class="dw dw-more"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                <a class="dropdown-item view_pdf" data-pk="${row.id}" id="${row.id}" target="_blank"><i class="dw dw-file-31"></i> PDF</a>
+                            </div>
+                        </div>`;
+                }
+            }
+        ],
+        lengthMenu: [20, 30, 40, 50, 80, 100],
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+        },
+        drawCallback: function () {
+            console.log('🔄 Tabla actualizada con nueva data');
+        }
+    });
+
+    $(document).on('click', '.send_email_invoice', function () {
+        const id = this.id;
+        const type_document = {{ request.session.type_document|default:0 }};
+        const branch_id = {{ request.session.branch_id|default:0 }};
+
+        if (type_document != 99) {
+            const data = {
+                number: id,
+                branch_id: branch_id,
+                type_document: type_document
+            };
+
+            $.ajax({
+                url: "{% url 'Send_Email_Invoice' %}",
+                method: "POST",
+                headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "X-CSRFToken": "{{ csrf_token }}"
+          },
+                data: data,
+                success: function (response) {
+                    console.log(response);
+            if (response.status === 'success') {
+                if (response.data.result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Correo enviado',
+                        text: 'La factura ha sido enviada correctamente.'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops... Algo ha salido mal',
+                        text: response.data.message || 'No se pudo enviar el correo.'
+                    });
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.error || 'Error desconocido al enviar el correo.'
+                });
+            }
+
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error AJAX:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de red',
+                        text: 'Hubo un problema al enviar la solicitud.'
+                    });
+                }
+            });
+        }
+    });
+
+
+    $(document).on('click', '.anulled_invoice', function () {
+        const id = this.id;
+        const type_document = {{ request.session.type_document|default:0 }};
+        const branch_id = {{ request.session.branch_id|default:0 }};
+
+        const data = {
+            number: id,
+            branch_id: branch_id,
+            type_document: type_document
+        };
+
+        $.ajax({
+            url: "{% url 'Anulled_Invoice' %}",
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            data: data,
+            success: function (response) {
+                console.log(response,'response');
+
+                if (response.status === 'success') {
+                    if (response.data.result) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Factura anulada',
+                            text: response.data.message
+                        });
+
+                        // 🔄 Recargar tabla para reflejar el nuevo estado
+                        table.ajax.reload(null, false); // false = no reiniciar paginación
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'No se pudo anular la factura.'
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.error || 'Error desconocido al anular la factura.'
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error AJAX:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de red',
+                    text: 'Hubo un problema al enviar la solicitud.'
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.view_pdf', function () {
+        const id = this.id;
+        const type_document = {{ request.session.type_document|default:0 }};
+        const branch_id = {{ request.session.branch_id|default:0 }};
+
+        const data = {
+            number: id,
+            branch_id: branch_id,
+            type_document: type_document
+        };
+        console.log(data)
+
+        $.ajax({
+            url: "{% url 'Create_PDF' %}",
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            data: data,
+            success: function (response) {
+                console.log(response);
+
+                if (response.data.result) {
+                    window.open(response.data.url, '_blank');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Error desconocido al crear el PDF.'
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error AJAX:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de red',
+                    text: 'Hubo un problema al enviar la solicitud.'
+                });
+            }
+        });
+    });
+
+
+      $(".select_branch").change(function(){
+        branch_id = $(this).val()
+        table.ajax.reload();
+      })
+
+  });
+</script>
+{% endblock %}

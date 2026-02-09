@@ -1,0 +1,270 @@
+{% extends '../base.html' %}
+{% block content %}
+<style>
+	.dataTables_paginate {
+	    overflow-x: auto;
+	    white-space: nowrap;
+	    display: flex;
+	    justify-content: center;
+	}
+
+	.dataTables_paginate .pagination {
+	    flex-wrap: nowrap;
+	}
+
+	@media screen and (max-width: 400px) {
+	    .dataTables_paginate {
+	        font-size: 12px;
+	    }
+	}
+</style>
+<a href="javascript:void(0);" hidden class="btn-block create_rut" data-toggle="modal" data-target="#create_rut" type="button">
+	<img src="vendors/images/modal-img2.jpg" alt="modal">
+</a>
+<div class="modal fade" id="create_rut" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="login-box bg-white box-shadow border-radius-10">
+                <div class="login-title">
+                    <h2 class="text-center text-primary">Subir Archivo</h2>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group mb-3">
+                            <input type="file" id="fileInput" class="form-control-file form-control height-auto">
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <button id="uploadButton" class="btn btn-primary btn-lg btn-block">Subir Archivo</button>
+                    </div>
+                </div>
+
+                <!-- Espacio para mostrar el mensaje de respuesta -->
+                <div class="col-sm-12 mt-3">
+                    <div id="uploadMessage" class="alert d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row mb-2">
+	<div class="col-md-6 col-sm-12">
+		<div class="title">
+			<h4>Lista de clientes por compañia</h4>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 text-right">
+		<a class="btn btn-primary create_customer_rut col-5" href="javascript:void(0);" role="button">Crear con RUT</a>
+		<a class="btn btn-primary create_customer col-5" href="{% url 'Create_Customer' %}" role="button">Crear cliente</a>
+	</div>
+</div>
+
+<div class="card-box mb-30 p-2">
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="data-table table table-stripe hover nowrap" style="width:100%">
+		        <thead>
+		            <tr>
+		                <th class="table-plus datatable-nosort">Código</th>
+		                <th>Producto</th>
+		                <th>Caja</th>
+		                <th>Display</th>
+		                <th>Unidades</th>
+		                <th>Acciones</th>
+		            </tr>
+		        </thead>
+		        <tbody></tbody>
+		    </table>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+	$(document).ready(function () {
+	    if ($.fn.DataTable.isDataTable('.table')) {
+	        $('.table').DataTable().destroy();
+	    }
+
+	    $(".create_customer_rut").click(function(){
+	    	$(".create_rut").click()
+	    })
+
+	    $('.table').DataTable({
+	        responsive: true,
+	        serverSide: true,
+	        processing: true,
+	        searching: true,
+	        pagingType: "simple_numbers",
+	        ajax: {
+	            url: "{% url 'Get_List_Customer' %}",
+	            type: "GET",
+	            headers: { "X-Requested-With": "XMLHttpRequest" },
+	            data: function (d) {
+	                d.search = d.search || {};
+	                d.search.value = d.search.value || '';
+	            },
+	            dataSrc: function (json) {
+	                console.log("🔹 Respuesta del servidor:", json);
+	                return json.data || [];
+	            }
+	        },
+	        columns: [
+	            { data: "identification_number", title: "identification_number", className: "table-plus" },
+	            { data: "name", title: "name" },
+	            { data: "phone", title: "phone" },
+	            { data: "address", title: "address" },
+	            { data: "email", title: "email" },
+	            {
+	                data: null,
+	                title: "Acciones",
+	                render: function (data, type, row) {
+	                    return `
+	                        <div class="dropdown">
+	                            <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+	                                <i class="dw dw-more"></i>
+	                            </a>
+	                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+	                                <a class="dropdown-item edit" data-pk="${row.identification_number}" id="${row.identification_number}" href="javascript:void(0);"><i class="dw dw-edit2"></i> Editar</a>
+	                                <a class="dropdown-item delete" data-pk="${row.id}" id="${row.id}" href="javascript:void(0);"><i class="dw dw-delete-3"></i> Eliminar</a>
+	                            </div>
+	                        </div>`;
+	                }
+	            }
+	        ],
+	        lengthMenu: [5, 10, 20, 30, 40, 50],
+	        language: {
+	            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+	        },
+	        drawCallback: function () {
+	            console.log('🔄 Tabla actualizada con nueva data');
+	        }
+	    });
+
+		$(document).on("click", ".delete", function () {
+		    let customer_id = this.id;
+		    let $btn = $(this);
+		    let table = $(".table").DataTable();
+		    let row = $btn.closest("tr");
+		    let rowData = table.row(row).data();
+		    console.log("📌 ID del cliente a eliminar:", customer_id);
+		    console.log("📌 Datos de la fila seleccionada:", rowData);
+		    if (!rowData) {
+		        console.error("🚨 Error: Código de cliente no encontrado.");
+		        Notification("error", "Oopss.. Algo salió mal.", "Código de cliente no encontrado.", "OK");
+		        return;
+		    }
+		    Swal.fire({
+		        icon: 'warning',
+		        title: '¿Eliminar cliente?',
+		        text: 'Esta acción no se puede deshacer.',
+		        showCancelButton: true,
+		        confirmButtonText: 'Sí, eliminar',
+		        cancelButtonText: 'Cancelar'
+		    }).then((result) => {
+		        if (result.isConfirmed) {
+		            $.ajax({
+		                url: "{% url 'Delete_Customer' %}",
+		                type: "POST",
+		                contentType: "application/json",
+		                data: JSON.stringify({
+		                    customer_id: customer_id,
+		                    employee_id: "{{request.session.pk_employee}}"
+		                }),
+		                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+		                success: function (response) {
+		                    console.log("✅ Respuesta del servidor:", response);
+		                    if (response.result) {
+		                        Swal.fire({
+		                            icon: 'success',
+		                            title: 'Cliente eliminado',
+		                            text: response.message || 'El cliente fue eliminado correctamente.',
+		                            confirmButtonText: 'OK'
+		                        }).then(() => {
+		                            table.ajax.reload();
+		                            // Si la tabla no se carga por AJAX, usa esto:
+		                            // table.row(row).remove().draw();
+		                        });
+		                    } else {
+		                        Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+		                    }
+		                },
+		                error: function (xhr, status, error) {
+		                    console.error("🚨 Error en la petición:", status, error);
+		                    Notification("error", "Oopss.. Algo salió mal.", "Error en la petición: " + status, "OK");
+		                }
+		            });
+		        }
+		    });
+		});
+
+
+
+		$(document).on('click', '.edit', function () {
+		    let table = $('.table').DataTable();
+		    let rowData = table.row($(this).closest('tr')).data();
+
+		    if (rowData) {
+		        let code = rowData.identification_number;
+		        let url = `/customer/Edit_Customer/${code}/`;
+		        location.href = url;
+		        console.log("📌 PK:", pk, "🔢 Código:", code);
+		    } else {
+		        console.error("⚠ No se encontraron datos de la fila.");
+		    }
+		});
+
+		$("#uploadButton").click(function() {
+	        let fileInput = $("#fileInput")[0].files[0]; // Obtener el archivo seleccionado
+	        if (!fileInput) {
+	            $("#uploadMessage").removeClass("d-none alert-success").addClass("alert-danger").text("Por favor, seleccione un archivo.");
+	            return;
+	        }
+	        let formData = new FormData();
+	        formData.append("file", fileInput);
+	        formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+	        $.ajax({
+	            url: "{% url 'Upload_File' %}",
+	            type: "POST",
+	            data: formData,
+	            processData: false,
+	            contentType: false,
+	            success: function(response) {
+	            	console.log(response)
+	            	if(response.result){
+	            		$("#fileInput").val('');
+	                	$("#uploadMessage").removeClass("d-none alert-danger").addClass("alert-success").text((response.message == 'created') ? "Cliente creado con exito" : "Cliente actualizado con exito") ;
+	                }
+	                else{
+	                	Notification("error", "Oopss.. Algo salió mal.", response.message, "OK");
+	                }
+	            },
+	            error: function() {
+	                $("#uploadMessage").removeClass("d-none alert-success").addClass("alert-danger").text("Error al subir el archivo.");
+	            }
+	        });
+	    });
+
+
+
+		$("#create_rut").on("hidden.bs.modal", function() {
+	        location.reload(true)
+	    });
+
+
+
+
+
+
+
+
+
+
+
+	});
+</script>
+{% endblock %}
